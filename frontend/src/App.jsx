@@ -14,19 +14,19 @@ import DesktopNavbar from './components/DesktopNavbar';
 import FollowNotification from './components/FollowingNotification';
 
 function App() {
-  const [count, setCount] = useState(0);
+  // const [count, setCount] = useState(0);
 
   return (
     <>
     <div >
-      {/* {/* <MessageCard/> */}
-      {/* <UserProfileHeader/>  */}
-      {/* <CreatePostCard/> */}
-      {/* <PostCard/> */}
-     {/* <MessageInput/> */}
-     {/* <MobileNavbar/> */}
-     {/* <DesktopNavbar/>  */}
-      {/* <FollowNotification/> */}
+      {/* <MessageCard/>
+      <UserProfileHeader/>  
+      <CreatePostCard/> 
+      <PostCard/> 
+      <MessageInput/> 
+      <MobileNavbar/> 
+      <DesktopNavbar/>  
+      <FollowNotification/>  */}
      </div>
     </>
   )
