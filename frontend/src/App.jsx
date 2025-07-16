@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import React from "react"; // 👈 Required for JSX unless you're using automatic JSX runtime
+import React from "react";
 
 import './App.css'
 import LoginPage from './components/LoginPage';
@@ -12,7 +12,9 @@ import MessageInput from './components/MessageInput';
 import MobileNavbar from './components/MobileNavbar';
 import DesktopNavbar from './components/DesktopNavbar';
 import FollowNotification from './components/FollowingNotification';
-
+import Feed from './components/feed/Feed';
+import Comments from './components/feed/Comments';
+import FollowersFollowing from './components/feed/FollowersFollowing';
 function App() {
   const [count, setCount] = useState(0);
 
@@ -27,6 +29,12 @@ function App() {
      {/* <MobileNavbar/> */}
      {/* <DesktopNavbar/>  */}
       {/* <FollowNotification/> */}
+      {/* <Comments/> */}
+      
+      {/* <Feed/>  */}
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+      <FollowersFollowing />
+    </div>
      </div>
     </>
   )
