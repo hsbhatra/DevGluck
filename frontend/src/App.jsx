@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import React from "react"; // 👈 Required for JSX unless you're using automatic JSX runtime
+// import { useState } from 'react'
+import React from "react";
 
 import './App.css'
 import LoginPage from './components/LoginPage';

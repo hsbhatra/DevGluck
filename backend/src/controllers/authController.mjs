@@ -10,14 +10,20 @@ const generateToken = (userId) =>
   });
 
 // --------------------------------------------------------------------
-
 // Controller: Register new user
 const registerUser = async (req, res) => {
-  const { firstName, lastName, email, password, confirmPassword } = req.body;
+  const { firstName, lastName, username, email, password, confirmPassword } = req.body;
 
   try {
     // Validate required fields
-    if (!firstName || !lastName || !email || !password || !confirmPassword) {
+    if (
+      !firstName ||
+      !lastName ||
+      !username ||
+      !email ||
+      !password ||
+      !confirmPassword
+    ) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
@@ -41,16 +47,23 @@ const registerUser = async (req, res) => {
       });
     }
 
-    // Check if user already exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ message: "User already exists" });
+    // Check for existing username
+    const existingUsername = await User.findOne({ username });
+    if (existingUsername) {
+      return res.status(400).json({ message: "Username already taken" });
+    }
+
+    // Check for existing email
+    const existingEmail = await User.findOne({ email });
+    if (existingEmail) {
+      return res.status(400).json({ message: "Email already registered" });
     }
 
     // Create user
     const user = await User.create({
       firstName,
       lastName,
+      username,
       email,
       password,
     });
@@ -61,18 +74,22 @@ const registerUser = async (req, res) => {
       user: {
         _id: user._id,
         name: `${user.firstName} ${user.lastName}`,
+        username: user.username,
         email: user.email,
         role: user.role,
+        avatar: user.avatar,
+        bio: user.bio,
       },
       token: generateToken(user._id),
     });
   } catch (err) {
-    res.status(500).json({ message: "Registration failed", error: err.message });
+    res
+      .status(500)
+      .json({ message: "Registration failed", error: err.message });
   }
 };
 
 // --------------------------------------------------------------------
-
 // Controller: Login existing user
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
@@ -80,7 +97,9 @@ const loginUser = async (req, res) => {
   try {
     // Validate required fields
     if (!email || !password) {
-      return res.status(400).json({ message: "Email and password are required" });
+      return res
+        .status(400)
+        .json({ message: "Email and password are required" });
     }
 
     // Validate email format
@@ -106,8 +125,11 @@ const loginUser = async (req, res) => {
       user: {
         _id: user._id,
         name: `${user.firstName} ${user.lastName}`,
+        username: user.username,
         email: user.email,
         role: user.role,
+        avatar: user.avatar,
+        bio: user.bio,
       },
       token: generateToken(user._id),
     });
