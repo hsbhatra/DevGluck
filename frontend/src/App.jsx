@@ -12,13 +12,16 @@ import MessageInput from './components/MessageInput';
 import MobileNavbar from './components/MobileNavbar';
 import DesktopNavbar from './components/DesktopNavbar';
 import FollowNotification from './components/FollowingNotification';
+import Blog from './pages/Blogs'
+import Status from './components/status/Status';
+import StatusCard from './components/status/StatusCard';
 
 function App() {
   // const [count, setCount] = useState(0);
 
   return (
     <>
-    <div >
+    {/* <div > */}
       {/* <MessageCard/>
       <UserProfileHeader/>  
       <CreatePostCard/> 
@@ -27,7 +30,12 @@ function App() {
       <MobileNavbar/> 
       <DesktopNavbar/>  
       <FollowNotification/>  */}
-     </div>
+      {/* <Blog/> */}
+      {/* <Status /> */}
+      
+     {/* </div> */}
+     {/* <StatusCard /> */}
+     <Status />
     </>
   )
 }
