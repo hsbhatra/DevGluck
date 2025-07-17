@@ -7,13 +7,17 @@ import UserProfileHeader from './components/profile/UserProfileHeader';
 import UserPersonalPosts from './pages/UserPersonalPosts'
 import SettingsAccountPage from './pages/SettingsAccountPage';
 import SettingsGeneralPage from './pages/SettingsGeneralPage';
+import FollowNotification from './components/notifications/FollowingNotification';
+import NotificationsPage from './pages/NotificationsPage';
 function App() {
   return (
     <>
      {/* <ProfilePage/> */}
      {/* <UserPersonalPosts/> */}
      {/* <SettingsAccountPage/> */}
-     <SettingsGeneralPage/>
+     {/* <SettingsGeneralPage/> */}
+     {/* <FollowNotification/> */}
+     <NotificationsPage/>
     </>
   )
 }
