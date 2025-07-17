@@ -3,7 +3,7 @@ import UserProfileHeader from '../components/profile/UserProfileHeader';
 import Feed from '../components/feed/Feed';
 import FollowersFollowing from '../components/feed/FollowersFollowing';
 
-const ProfilePage = () => {
+const UserPersonalPosts = () => {
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Main Container */}
@@ -93,4 +93,4 @@ const ProfilePage = () => {
   );
 };
 
-export default ProfilePage;
+export default UserPersonalPosts;

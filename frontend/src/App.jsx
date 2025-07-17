@@ -3,10 +3,17 @@ import React from "react";
 
 import './App.css'
 import ProfilePage from './pages/ProfilePage';
+import UserProfileHeader from './components/profile/UserProfileHeader';
+import UserPersonalPosts from './pages/UserPersonalPosts'
+import SettingsAccountPage from './pages/SettingsAccountPage';
+import SettingsGeneralPage from './pages/SettingsGeneralPage';
 function App() {
   return (
     <>
-      <ProfilePage />
+     {/* <ProfilePage/> */}
+     {/* <UserPersonalPosts/> */}
+     {/* <SettingsAccountPage/> */}
+     <SettingsGeneralPage/>
     </>
   )
 }
