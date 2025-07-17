@@ -1,3 +1,5 @@
+import { useState } from 'react'
+import React from "react";
 // import { useState } from 'react'
 import React from "react";
 
@@ -16,11 +18,30 @@ import Blog from './pages/Blogs'
 import Status from './components/status/Status';
 import StatusCard from './components/status/StatusCard';
 
+import Feed from './components/feed/Feed';
+import Comments from './components/feed/Comments';
+import FollowersFollowing from './components/feed/FollowersFollowing';
 function App() {
   // const [count, setCount] = useState(0);
 
   return (
     <>
+    <div >
+      {/* {/* <MessageCard/> */}
+      {/* <UserProfileHeader/>  */}
+      {/* <CreatePostCard/> */}
+      {/* <PostCard/> */}
+     {/* <MessageInput/> */}
+     {/* <MobileNavbar/> */}
+     {/* <DesktopNavbar/>  */}
+      {/* <FollowNotification/> */}
+      {/* <Comments/> */}
+      
+      {/* <Feed/>  */}
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+      <FollowersFollowing />
+    </div>
+     </div>
     {/* <div > */}
       {/* <MessageCard/>
       <UserProfileHeader/>  
