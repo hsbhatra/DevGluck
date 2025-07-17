@@ -1,12 +1,27 @@
-import express from 'express';
-import { createUser } from '../controllers/userController.mjs';
-import { authentication, authorization } from "../auth/authentication.mjs";
+import express from "express";
+import authRoutes from "./authRoutes.mjs";
+import { protect } from "../middleware/authMiddleware.mjs";
 
 const router = express.Router();
 
-// API's here
-router.get('/',authentication, /*API function here*/);
-router.post('/register', createUser);
-router.put("/update/:userid", authentication, authorization, /* API function here */);
+router.use("/auth", authRoutes);
+
+// -----------------------------------------------------------
+
+// Temporary route for testing purposes:
+// This route will only be accessible if the user is authenticated (checks user is authenticated/loggedIn or not).
+// Uncomment the below given route to test protect middleware.
+
+// router.get("/test-protected", protect, (req, res) => {
+//   res.json({
+//     message: "Access granted",
+//     user: req.user
+//   });
+// });
+
+// NOTE:
+// Use protect middleware to secure access to the other routes for logged in users only.
+
+// -----------------------------------------------------------
 
 export default router;

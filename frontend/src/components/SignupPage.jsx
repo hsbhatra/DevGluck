@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import FormInput from "../Other/FormInput";
-import { EmailIcon, LockIcon, UserIcon } from "../Other/Icons";
+import FormInput from "./Other/FormInput";
+import { EmailIcon, LockIcon, UserIcon } from "./Other/Icons";
 
 function SignupPage() {
   return (

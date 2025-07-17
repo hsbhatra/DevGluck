@@ -9,4 +9,11 @@ const mongodb=process.env.MongoDB;
 const PORT= process.env.PORT;
 const secretMessage= process.env.secretMessage;
 
-export {accessKeyId, secretAccessKey, region, mongodb, PORT, secretMessage}
+export {
+    accessKeyId, 
+    secretAccessKey, 
+    region, 
+    mongodb, 
+    PORT, 
+    secretMessage
+}

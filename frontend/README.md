@@ -1,7 +1,13 @@
-##DevGluck Fronend #figma file https://www.figma.com/design/wylvoa6Ht96ci8cBShDLE2/Social-Media-App-Ui-Design--Community-?node-id=0-1&p=f&t=pxncupn9XLh5xb39-0
+# React + Vite
 
-Components / Features Profile Login SignUp Post Comment , Like and Share Followers Following Save Post Blogs Search Post and Users Chat Notifications Voice messages Status settings Day 1 Tasks Himanshu Desktop figma : Profile Login SignUp
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-Muthu Desktop figma : Blogs Search Post and Users Chat Notifications settings
+Currently, two official plugins are available:
 
-Aniket Desktop figma : Post Comment , Like and Share Followers Following Save Post Arpita Mobile Design Profile Login SignUp Post Comment , Like and Share Followers Following Save Post Anvi Mobile Design Blogs Search Post and Users Chat Notifications Voice messages Status settings Day 2 and Day 3 Tasks Himanshu Desktop Code : Profile Login SignUp Muthu Desktop Code : Blogs Search Post and Users Chat Notifications Aniket Desktop Code : Post Comment , Like and Share Followers Following Save Post Arpita Mobile Code Profile Login SignUp Post Comment , Like and Share Followers Following Save Post Anvi Mobile Code Blogs Search Post and Users Chat Notifications Voice messages Status
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+
+## Expanding the ESLint configuration
+
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+# Devgluke
