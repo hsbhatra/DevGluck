@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import FormInput from "./Other/FormInput";
-import { EmailIcon, LockIcon } from "./Other/Icons";
+import FormInput from "../Other/FormInput";
+import { EmailIcon, LockIcon } from "../Other/Icons";
 
 const LoginPage = () => {
   return (
