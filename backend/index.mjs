@@ -1,18 +1,40 @@
-import express from 'express';
-import mongoose from 'mongoose';
-import multer from 'multer';
-import { PORT, mongodb } from "./config.mjs";
-import router from "./src/routes/route.mjs";
+import express, { urlencoded } from "express";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import dotenv from "dotenv";
 
-const app= express();
+import connectDB from "./src/utils/db.mjs";
+import userRoute from "./src/routes/userRoute.mjs";
+import postRoute from "./src/routes/postRoute.mjs";
+import messageRoute from "./src/routes/messageRoute.mjs";
+import { app, server } from "./src/socket/socket.mjs";
+import path from "path";
+ 
+dotenv.config();
+
+
+const PORT = process.env.PORT || 3000;
+
+
+
+//middlewares
 app.use(express.json());
-app.use(multer().any());
+app.use(cookieParser());
+app.use(urlencoded({ extended: true }));
+const corsOptions = {
+    origin: process.env.URL,
+    credentials: true
+}
+app.use(cors(corsOptions));
 
-mongoose.connect(mongodb)
-.then(()=>console.log("database connected successfully"))
-.catch((err)=>console.log(err));
+// yha pr apni api ayengi
+// app.use("/api/v1/user", userRoute);
+// app.use("/api/v1/post", postRoute);
+app.use("/api/v1/message", messageRoute);
 
-app.use('/', router);
-app.listen(PORT, ()=>{
-    console.log(`Server started at port : ${PORT}`);
-})
+
+
+server.listen(PORT, () => {
+    connectDB();
+    console.log(`Server listen at port ${PORT}`);
+});
