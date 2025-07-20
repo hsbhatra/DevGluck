@@ -97,6 +97,7 @@ const loginUser = async (req, res) => {
   try {
     // Validate required fields
     if (!email || !password) {
+      console.log("authControll: email reqquired");
       return res
         .status(400)
         .json({ message: "Email and password are required" });
@@ -104,6 +105,7 @@ const loginUser = async (req, res) => {
 
     // Validate email format
     if (!isValidEmail(email)) {
+      console.log("authControll: Invalid email");
       return res.status(400).json({ message: "Invalid email format" });
     }
 

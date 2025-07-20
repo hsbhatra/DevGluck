@@ -9,8 +9,9 @@ export const isValidEmail = (email) => {
 // Helper function to validate strong passwords for registration
 export const isValidStrongPassword = (password) => {
   const regex =
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{9,}$/;
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*#?&]{9,}$/;
   return regex.test(password);
+  // return true; // Placeholder for strong password validation
 };
 
 // --------------------------------------------------------------------

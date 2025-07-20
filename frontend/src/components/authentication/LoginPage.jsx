@@ -2,16 +2,23 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import FormInput from "../Other/FormInput";
 import { EmailIcon, LockIcon } from "../Other/Icons";
-import axiosInstance from "../../api/axiosInstance";
+import { useDispatch, useSelector } from "react-redux";
+import { signInUser } from "../../slices/UserSlice";
+import Loader from "../loaders/Loader";
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const loading = useSelector((state) => state.users.loading);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
 
-  const [error, setError] = useState("");
+  const [error, setError] = useState({
+    email: "",
+    password: "",
+  });
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -19,15 +26,25 @@ const LoginPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(null); // Reset error state
+
+    let errors = {};
+    if (!formData.email) errors.email = "Email is required";
+    if (!formData.password) errors.password = "Password is required";
+    setError(errors);
+
+    if(Object.keys(errors).length > 0) return;
 
     try {
-      const res = await axiosInstance.post("/auth/login", formData);
-      console.log("Login success", res.data);
-
-      // Save token/user info in localStorage
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
-
+      const res = await dispatch(signInUser(formData));
+      if (signInUser.fulfilled.match(res)) {
+        console.log("Login Success:", res.payload);
+        // Redirect to home page after successful login
+        navigate("/");
+      } else {
+        // signInUser Promise Rejected
+        alert(res.error?.message || "Login failed");
+      }
       navigate("/"); // Redirect to home page after login
     } catch (err) {
       console.error(err);
@@ -36,6 +53,10 @@ const LoginPage = () => {
   };
 
   return (
+    <>
+    {loading && <div className="w-12/12 h-12/12 fixed top-0 left-0 z-50 bg-white opacity-90 flex justify-center items-center">
+      <Loader/>
+    </div>}
     <div className="w-full min-h-screen flex flex-col bg-gradient-to-br from-blue-50 to-indigo-50">
       <div className="flex flex-col lg:flex-row flex-grow items-center justify-center p-4">
         <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
@@ -48,6 +69,7 @@ const LoginPage = () => {
               type="email"
               name="email"
               placeholder="Email"
+              error={error.email}
               icon={<EmailIcon />}
               value={formData.email}
               onChange={handleChange}
@@ -57,15 +79,12 @@ const LoginPage = () => {
               type="password"
               name="password"
               placeholder="Password"
+              error={error.password}
               showPasswordToggle={true}
               icon={<LockIcon />}
               value={formData.password}
               onChange={handleChange}
             />
-
-            {error && (
-              <p className="text-sm text-red-600 text-center font-medium">{error}</p>
-            )}
 
             <div className="flex items-center justify-between text-sm">
               <label className="flex items-center space-x-2 cursor-pointer">
@@ -103,6 +122,7 @@ const LoginPage = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

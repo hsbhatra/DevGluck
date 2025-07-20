@@ -13,7 +13,7 @@ const FormInput = ({
 }) => {
   const [showPassword, setShowPassword] = useState(false);
 
-  const getAutoCompleteValue = () => {
+  const getAutoCompleteValue = (name) => {
     switch (name) {
       case 'email':
         return 'username';
@@ -42,7 +42,13 @@ const FormInput = ({
           value={value}
           onChange={onChange}
           placeholder={placeholder}
-          autoComplete={getAutoCompleteValue()}
+          autoComplete={getAutoCompleteValue(name)}
+          pattern={name === "password" ? "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$" : undefined}
+          title={
+            name === "password"
+              ? "Password must be at least 8 characters and include uppercase, lowercase, and a number"
+              : undefined
+          }
           className={`w-full p-3 ${
             icon ? 'pl-10' : 'pl-3'
           } pr-${showPasswordToggle ? '10' : '3'} border rounded-lg focus:outline-none focus:ring-2 transition-all

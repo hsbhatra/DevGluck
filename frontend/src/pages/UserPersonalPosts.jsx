@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import UserProfileHeader from '../components/profile/UserProfileHeader';
 import Feed from '../components/feed/Feed';
 import FollowersFollowing from '../components/feed/FollowersFollowing';
