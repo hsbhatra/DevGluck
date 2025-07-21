@@ -15,6 +15,8 @@ import SignupPage from "./components/authentication/SignupPage";
 import ProtectedRoute from "./components/routeLock/ProtectedRoute";
 import Feed from "./components/feed/Feed";
 import Post from "./components/post/PostCard";
+import NotificationsPage from "./pages/NotificationsPage";
+import FollowUnfollowPage from "./pages/FollowUnfollowPage";
 
 
 
@@ -22,11 +24,12 @@ function App() {
   return (
     <div className="App">
       <Routes>
-        <Route path="/signup" element={<SignupPage />}/>
-        <Route path="/login" element={<LoginPage />}/>
-        <Route path="/" element={<ProtectedRoute><Feed/></ProtectedRoute>}/>
+        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/" element={<ProtectedRoute><Feed /></ProtectedRoute>} />
+        <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
       </Routes>
-      
+      {/* <Route path="/follow" element={<FollowUnfollowPage />}/> */}
     </div>
   );
 }

@@ -57,6 +57,24 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
+
+    loginAttempts: {
+      type: Number,
+      default: 0,
+    },
+
+    lockUntil: {
+      type: Date,
+    },
+
+    lastLogin: {
+      type: Date,
+    },
   },
   { timestamps: true }
 );
@@ -71,6 +89,11 @@ userSchema.pre("save", async function (next) {
 // Compare password method
 userSchema.methods.matchPassword = function (password) {
   return bcrypt.compare(password, this.password);
+};
+
+// Check if account is locked (temporary locked after too many failed attempts)
+userSchema.methods.isLocked = function () {
+  return this.lockUntil && this.lockUntil > new Date();
 };
 
 export const User = mongoose.model("User", userSchema);
