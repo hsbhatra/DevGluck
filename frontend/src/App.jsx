@@ -16,6 +16,7 @@ import ProtectedRoute from "./components/routeLock/ProtectedRoute";
 import Feed from "./components/feed/Feed";
 import Post from "./components/post/PostCard";
 import NotificationsPage from "./pages/NotificationsPage";
+import FollowUnfollowPage from "./pages/FollowUnfollowPage";
 
 
 
@@ -28,6 +29,7 @@ function App() {
         <Route path="/" element={<ProtectedRoute><Feed/></ProtectedRoute>}/>
         <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
       </Routes>
+      {/* <Route path="/follow" element={<FollowUnfollowPage />}/> */}
     </div>
   );
 }
