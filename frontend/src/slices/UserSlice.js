@@ -2,40 +2,40 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axiosInstance from '../api/axiosInstance';
 
 // Dummy data to test
-    // const mockFormData = {
-    //   firstName: "John",
-    //   lastName: "Doe",
-    //   username: "johndoe",
-    //   email: "john@example.com",
-    //   password: "password123",
-    // };
-    
-    // return new Promise((resolve) => {
-    //   setTimeout(() => {
-    //     const mockResponse = {
-    //       id: Date.now(),
-    //       ...mockFormData,
-    //       token: 'mock-jwt-token',
-    //     };
-    //     sessionStorage.setItem('currentUser', JSON.stringify(mockResponse));
-    //     resolve(mockResponse);
-    //   }, 1000); // 1 second delay
-  // })
+// const mockFormData = {
+//   firstName: "John",
+//   lastName: "Doe",
+//   username: "johndoe",
+//   email: "john@example.com",
+//   password: "password123",
+// };
+
+// return new Promise((resolve) => {
+//   setTimeout(() => {
+//     const mockResponse = {
+//       id: Date.now(),
+//       ...mockFormData,
+//       token: 'mock-jwt-token',
+//     };
+//     sessionStorage.setItem('currentUser', JSON.stringify(mockResponse));
+//     resolve(mockResponse);
+//   }, 1000); // 1 second delay
+// })
 
 export const signUpUser = createAsyncThunk(
   'user/signup',
   async (formData, thunkAPI) => {
-    try{
+    try {
       const response = await axiosInstance.post('/auth/signup', formData);
       console.log("UserSlice: signUpUser response:", response.data);
       return response.data;
-    }catch (error) {
+    } catch (error) {
       console.error("UserSlice: signUpUser error:", error);
       return thunkAPI.rejectWithValue(error.response.data);
     }
 
   }
-); 
+);
 
 export const signInUser = createAsyncThunk(
   'user/signin',
@@ -56,7 +56,7 @@ const userSlice = createSlice({
   name: 'user',
   initialState,
   reducers: {
-    clearUser:(state)=>{
+    clearUser: (state) => {
       state.currentUser = null;
       state.isAuthenticated = false;
       console.log("User cleared:", state);
@@ -65,14 +65,14 @@ const userSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(signUpUser.pending, (state) => {
-        state.loading = true;      
-        state.error = null;         
+        state.loading = true;
+        state.error = null;
       })
       .addCase(signUpUser.fulfilled, (state, action) => {
         state.currentUser = action.payload;
         state.isAuthenticated = true;
         state.loading = false;
-        sessionStorage.setItem('currentUser', JSON.stringify(action.payload));
+        localStorage.setItem('currentUser', JSON.stringify(action.payload));
         console.log("User set:", state);
       })
       .addCase(signUpUser.rejected, (state, action) => {
@@ -91,7 +91,7 @@ const userSlice = createSlice({
         state.currentUser = action.payload;
         state.isAuthenticated = true;
         state.loading = false;
-        sessionStorage.setItem('currentUser', JSON.stringify(action.payload));
+        localStorage.setItem('currentUser', JSON.stringify(action.payload));
         console.log("User signed in:", state);
       })
       .addCase(signInUser.rejected, (state, action) => {

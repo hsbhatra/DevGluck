@@ -1,10 +1,11 @@
 import express from "express";
-import isAuthenticated from "../middleware/isAuthenticated.mjs";
-import { getMessage, sendMessage } from "../controllers/messageController.mjs";
+import { protect } from "../middleware/authMiddleware.mjs";
+import { getMessage, sendMessage, getUserConversations } from "../controllers/messageController.mjs";
 
 const router = express.Router();
 
-router.route('/send/:id').post(isAuthenticated, sendMessage);
-router.route('/all/:id').get(isAuthenticated, getMessage);
- 
+router.route('/').get(protect, getUserConversations);
+router.route('/send/:id').post(protect, sendMessage);
+router.route('/all/:id').get(protect, getMessage);
+
 export default router;

@@ -21,6 +21,7 @@ export const protect = async (req, res, next) => {
 
     // Find the user from DB and attach to the request object (req.user) so we can use it later.
     req.user = await User.findById(decoded.id).select("-password");
+    // console.log("Authenticated user:", req.user);
     next();
   } catch (err) {
     return res.status(401).json({ message: "Token is invalid" });

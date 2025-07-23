@@ -3,6 +3,7 @@ import {
   registerUser,
   loginUser,
 } from "../controllers/authController.mjs";
+import { protect } from "../middleware/authMiddleware.mjs";
 
 const router = express.Router();
 

@@ -1,38 +1,39 @@
-import express, { urlencoded } from 'express';
-import cors from 'cors';
-import cookieParser from 'cookie-parser';
+import express from 'express';
 import mongoose from 'mongoose';
 import multer from 'multer';
-import connectDB from './src/utils/db.mjs';
-import postRoute from './src/routes/postRoute.mjs';
-import messageRoute from './src/routes/messageRoute.mjs';
+import cors from 'cors';
 import { PORT, mongodb } from "./config.mjs";
+import http from 'http';
+import { initSocket } from './src/socket/socket.mjs';
 import router from "./src/routes/route.mjs";
-import { app, server } from './src/socket/socket.mjs';
-import path from 'path';
+
 
 const app = express();
-app.use(cors({
-  oeigin: process.env.URL,
-  credentials: true,
-}))
+
+app.use(cors(
+  {
+    origin: "http://localhost:5173",
+    credentials: true,
+  }
+));
+
 app.use(express.json());
-app.use(cookieParser());
-app.use(urlencoded({ extended: true }));
-const corsOptions = {
-  origin: process.env.URL,
-  credentials: true
-}
-// app.use(cors(corsOptions));
+app.use(multer().any());
 
-// yha pr apni api ayengi
-// app.use("/api/v1/user", userRoute);
-// app.use("/api/v1/post", postRoute);
-app.use("/api/v1/message", messageRoute);
+mongoose.connect(mongodb, {
+  useNewUrlParser: true,
+})
+  .then(() => { console.log("MongoDB connected successfully") })
+  .catch((err) => { console.log("MongoDB connection failed", err) });
 
+app.use('/', router);
 
+// Create http server with express app
+const server = http.createServer(app);
+
+// Initialize socket server with http server
+initSocket(server);
 
 server.listen(PORT, () => {
-  connectDB();
-  console.log(`Server listen at port ${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });

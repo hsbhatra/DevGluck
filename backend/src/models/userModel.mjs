@@ -38,7 +38,7 @@ const userSchema = new mongoose.Schema(
 
     avatar: {
       type: String, // URL to profile image
-      default: "", // Can be updated later
+      default: "https://i.pravatar.cc/40?img=4", // Can be updated later
     },
 
     bio: {
