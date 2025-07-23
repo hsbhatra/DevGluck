@@ -5,7 +5,7 @@ import Share from './Share'
 const Feed = () => {
   return (
     <div>
-     <Share />
+     {/* <Share /> */}
       <Post />
       <Post />
       <Post />
