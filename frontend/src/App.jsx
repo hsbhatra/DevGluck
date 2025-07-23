@@ -41,8 +41,8 @@ function App() {
           <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
           <Route path="/messages" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
 
-
-          {/* Anvi */}
+          {/* Merge from Anvi Branch */}
+          {/* ---------------------------------------------------------------------------- */}
           {/* <Route path="/signup" element={<SignupPage />}/>
           <Route path="/login" element={<LoginPage />}/>
           <Route path="/" element={<ProtectedRoute><Feed/></ProtectedRoute>}/>
@@ -62,7 +62,6 @@ function App() {
       </div >
 
     </>
-
   );
 }
 
