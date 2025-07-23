@@ -1,5 +1,5 @@
-import { Follow } from "../models/followModel.js";
-import { User } from "../models/userModel.js";
+import { Follow } from "../models/followModel.mjs";
+import { User } from "../models/userModel.mjs";
 import mongoose from "mongoose";
 
 // Follow a user

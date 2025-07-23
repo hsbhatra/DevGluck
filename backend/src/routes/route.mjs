@@ -2,16 +2,17 @@ import express from "express";
 import authRoutes from "./authRoutes.mjs";
 import userRoutes from "./userRoutes.mjs";
 import notificationRoutes from "./notificationRoutes.mjs";
-import followRoutes from "./followRoutes.js";
-// Importing the protect middleware to secure routes
-// import { protect } from "../middleware/authMiddleware.mjs";
+import followRoutes from "./followRoutes.mjs";
+import messageRoutes from "./messageRoute.mjs";
+import { protect } from "../middleware/authMiddleware.mjs";
 
 const router = express.Router();
 
 router.use("/auth", authRoutes);
-router.use("/notifications", notificationRoutes);
-router.use("/users", userRoutes);
-router.use("/api", followRoutes);
+router.use("/notifications", protect, notificationRoutes);
+router.use("/users", protect, userRoutes);
+router.use("/api", protect, followRoutes);
+router.use("/messages", protect, messageRoutes);
 
 // -----------------------------------------------------------
 
