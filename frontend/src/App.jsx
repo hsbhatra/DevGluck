@@ -29,7 +29,6 @@ function App() {
         <Route path="/" element={<ProtectedRoute><Feed/></ProtectedRoute>}/>
         <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
       </Routes>
-      {/* <Route path="/follow" element={<FollowUnfollowPage />}/> */}
     </div>
   );
 }

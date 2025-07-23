@@ -76,7 +76,7 @@ const userSchema = new mongoose.Schema(
       type: Date,
     },
   },
-  { timestamps: true }
+  { timestamps: true, versionKey: false }
 );
 
 // Hash password before saving
