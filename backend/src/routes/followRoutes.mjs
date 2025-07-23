@@ -4,25 +4,21 @@ import {
   unfollowUser,
   getFollowStatus,
 } from "../controllers/followController.mjs";
-// import { authenticateToken } from "../middleware/authMiddleware.mjs"; // Assuming you have auth middleware
 import { protect } from "../middleware/authMiddleware.mjs";
 
 const router = express.Router();
 
-// All routes require authentication
-router.use(protect);
-
 // Follow a user
-// POST /api/follow/:userId
+// POST /{base-api}/follow/:userId
 router.post("/:userId", protect, followUser);
 
 // Unfollow a user  
-// DELETE /api/follow/:userId
+// DELETE /{base-api}/follow/:userId
 router.delete("/:userId", protect, unfollowUser);
 
 // Check follow status between current user and target user
-// GET /api/follow/:userId/status
-router.get("/:userId/status", protect, getFollowStatus);
+// GET /{base-api}/follow/:userId/status
+router.get("/status/:userId", protect, getFollowStatus);
 
 
 

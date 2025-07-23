@@ -11,7 +11,7 @@ const router = express.Router();
 router.use("/auth", authRoutes);
 router.use("/notifications", protect, notificationRoutes);
 router.use("/users", protect, userRoutes);
-router.use("/api", protect, followRoutes);
+router.use("/users/follow", protect, followRoutes);
 router.use("/messages", protect, messageRoutes);
 
 // -----------------------------------------------------------
