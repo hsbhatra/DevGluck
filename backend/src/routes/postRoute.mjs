@@ -1,15 +1,23 @@
 import express from "express";
+import { protect } from "../middleware/authMiddleware.mjs";
+import {
+  addNewPost,
+  getAllPosts,
+  getUserPosts,
+  deletePost,
+  likePost,
+  addComment,
+  getCommentsOfPost
+} from "../controllers/postController.mjs";
 
 const router = express.Router();
 
-// router.route("/addpost").post(isAuthenticated, upload.single('image'), addNewPost);
-// router.route("/all").get(isAuthenticated,getAllPost);
-// router.route("/userpost/all").get(isAuthenticated, getUserPost);
-// router.route("/:id/like").get(isAuthenticated, likePost);
-// router.route("/:id/dislike").get(isAuthenticated, dislikePost);
-// router.route("/:id/comment").post(isAuthenticated, addComment); 
-// router.route("/:id/comment/all").post(isAuthenticated, getCommentsOfPost);
-// router.route("/delete/:id").delete(isAuthenticated, deletePost);
-// router.route("/:id/bookmark").get(isAuthenticated, bookmarkPost);
+router.route("/addpost").post(protect, addNewPost);
+router.route("/all").get(protect, getAllPosts);
+router.route("/userpost/:userId?").get(protect, getUserPosts);
+router.route("/:postId/like").post(protect, likePost);
+router.route("/:postId/comment").post(protect, addComment); 
+router.route("/:postId/comment/all").get(protect, getCommentsOfPost);
+router.route("/delete/:postId").delete(protect, deletePost);
 
 export default router;

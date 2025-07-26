@@ -28,6 +28,7 @@ const PostCard = () => {
             <h4 className="text-sm font-medium">{post.userName}</h4>
             <p className="text-xs text-gray-500">{post.userRole}</p>
           </div>
+
         </div>
         <div className="text-xs text-gray-500 flex-shrink-0">{post.time}</div>
       </div>
@@ -62,3 +63,4 @@ const PostCard = () => {
 };
 
 export default PostCard;
+

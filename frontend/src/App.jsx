@@ -17,51 +17,127 @@ import UserPersonalPosts from "./pages/UserPersonalPosts";
 // import SettingsAccountPage from "./pages/SettingsAccountPage";
 // import SettingsGeneralPage from "./pages/SettingsGeneralPage";
 // import NotificationsPage from "./pages/NotificationsPage";
-// import Blogs from "./pages/Blogs";
+import Blogs from "./pages/Blogs";
 import LoginPage from "./components/authentication/LoginPage";
 import SignupPage from "./components/authentication/SignupPage";
 import ProtectedRoute from "./components/routeLock/ProtectedRoute";
 import Feed from "./components/feed/Feed";
 import Post from "./components/post/PostCard";
 import NotificationsPage from "./pages/NotificationsPage";
-import FollowUnfollowPage from "./pages/FollowUnfollowPage";
+import FollowUnfollow from "./pages/FollowUnfollow";
 import ChatPage from "./components/chat/ChatPage";
+import Layout from "./components/Layout";
 
 
 function App() {
 
   return (
-    <>
-
-      < div className="App" >
-        <Routes>
-          <Route path="/signup" element={<SignupPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/" element={<ProtectedRoute><Feed /></ProtectedRoute>} />
-          <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
-          <Route path="/messages" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
-
-          {/* Merge from Anvi Branch */}
-          {/* ---------------------------------------------------------------------------- */}
-          {/* <Route path="/signup" element={<SignupPage />}/>
-          <Route path="/login" element={<LoginPage />}/>
-          <Route path="/" element={<ProtectedRoute><Feed/></ProtectedRoute>}/>
-          <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} /> */}
-          {/* <Route path="/profile" element={<ProfilePage />}/> */}
-          <Route path="/settings" element={<SettingsPage />} />
-          <Route path="/settings/account" element={<SettingsAccountPage />} />
-          <Route path="/settings/notifications" element={<SettingsNotificationsPage />} />
-          <Route path="/settings/appearance" element={<SettingsAppearancePage />} />
-          <Route path="/settings/privacy" element={<SettingsPrivacyPage />} />
-          <Route path="/settings/help" element={<SettingsHelpPage />} />
-          <Route path="/settings/about" element={<SettingsAboutPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          {/* <Route path="/follow" element={<FollowUnfollowPage />}/>  */}
-        </Routes>
-
-      </div >
-
-    </>
+    <div className="App">
+      <Routes>
+        {/* Authentication routes - no navbar */}
+        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        
+        {/* Protected routes with navbar */}
+        <Route path="/" element={
+          <ProtectedRoute>
+            <Layout>
+              <Feed />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/notifications" element={
+          <ProtectedRoute>
+            <Layout>
+              <NotificationsPage />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/messages" element={
+          <ProtectedRoute>
+            <Layout>
+              <ChatPage />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/profile" element={
+          <ProtectedRoute>
+            <Layout>
+              <ProfilePage />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/settings" element={
+          <ProtectedRoute>
+            <Layout>
+              <SettingsPage />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/settings/account" element={
+          <ProtectedRoute>
+            <Layout>
+              <SettingsAccountPage />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/settings/notifications" element={
+          <ProtectedRoute>
+            <Layout>
+              <SettingsNotificationsPage />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/settings/appearance" element={
+          <ProtectedRoute>
+            <Layout>
+              <SettingsAppearancePage />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/settings/privacy" element={
+          <ProtectedRoute>
+            <Layout>
+              <SettingsPrivacyPage />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/settings/help" element={
+          <ProtectedRoute>
+            <Layout>
+              <SettingsHelpPage />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/settings/about" element={
+          <ProtectedRoute>
+            <Layout>
+              <SettingsAboutPage />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/blogs" element={
+          <ProtectedRoute>
+            <Layout>
+              <Blogs />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        
+        {/* <Route path="/follow" element={<FollowUnfollow />}/>  */}
+      </Routes>
+    </div>
   );
 }
 

@@ -1,20 +1,15 @@
-import React, { Component } from 'react'
-import DesktopNavbar from '../components/DesktopNavbar'
+import React from 'react'
 import Blog from "../components/blogs/Blog"
 
 export default function Blogs() {
-  const blogs = []
+  // const blogs = []
 
   return (
-    <>
-        <DesktopNavbar/>
-
-        <div className='pt-24'>
-            <Blog/>
-            {/* {blogs.map((blog, idx)=>{
-                <Blog blog={blog} key={idx}/>
-            })} */}
-        </div>
-    </>
+    <div className='pt-4'>
+        <Blog/>
+        {/* {blogs.map((blog, idx)=>{
+            <Blog blog={blog} key={idx}/>
+        })} */}
+    </div>
   )
 }

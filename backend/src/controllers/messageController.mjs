@@ -68,6 +68,7 @@ export const sendMessage = async (req, res) => {
         console.log(error);
     }
 }
+
 export const getMessage = async (req, res) => {
     try {
         const senderId = req.user._id;
