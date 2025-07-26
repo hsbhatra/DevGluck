@@ -62,12 +62,12 @@ const FollowersFollowing = () => {
   const currentList = activeTab === "followers" ? followers : following;
 
   return (
-    <div className="bg-white rounded-xl shadow-md w-full max-w-md mx-auto">
+    <div className="bg-white rounded-xl shadow-md w-full max-w-md mx-auto overflow-hidden">
       {/* Tabs */}
       <div className="flex border-b border-gray-200">
         <button
           onClick={() => setActiveTab("followers")}
-          className={`flex-1 py-3 text-center font-semibold transition-colors ${
+          className={`flex-1 py-2 sm:py-3 text-center font-semibold transition-colors text-sm sm:text-base ${
             activeTab === "followers"
               ? "border-b-2 border-blue-600 text-blue-600"
               : "text-gray-500 hover:text-gray-800"
@@ -77,7 +77,7 @@ const FollowersFollowing = () => {
         </button>
         <button
           onClick={() => setActiveTab("following")}
-          className={`flex-1 py-3 text-center font-semibold transition-colors ${
+          className={`flex-1 py-2 sm:py-3 text-center font-semibold transition-colors text-sm sm:text-base ${
             activeTab === "following"
               ? "border-b-2 border-blue-600 text-blue-600"
               : "text-gray-500 hover:text-gray-800"
@@ -90,32 +90,32 @@ const FollowersFollowing = () => {
       {/* List */}
       <div className="max-h-96 overflow-y-auto divide-y divide-gray-200">
         {currentList.length === 0 && (
-          <div className="p-4 text-center text-gray-500">
+          <div className="p-3 sm:p-4 text-center text-gray-500 text-sm sm:text-base">
             No {activeTab}.
           </div>
         )}
         {currentList.map((user, index) => (
           <div
             key={user.id}
-            className="flex items-center justify-between py-3 px-4"
+            className="flex items-center justify-between py-2 sm:py-3 px-3 sm:px-4"
           >
             {/* Left */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
               <img
                 src={user.avatar}
                 alt={user.name}
-                className="w-12 h-12 rounded-full object-cover border border-gray-200"
+                className="w-8 h-8 sm:w-12 sm:h-12 rounded-full object-cover border border-gray-200 flex-shrink-0"
               />
-              <div>
-                <p className="font-semibold text-gray-800">{user.name}</p>
-                <p className="text-sm text-gray-500">@{user.username}</p>
+              <div className="min-w-0 flex-1">
+                <p className="font-semibold text-gray-800 text-sm sm:text-base truncate">{user.name}</p>
+                <p className="text-xs sm:text-sm text-gray-500 truncate">@{user.username}</p>
               </div>
             </div>
 
             {/* Right */}
             <button
               onClick={() => handleToggle(activeTab, index)}
-              className={`px-3 py-1 text-sm font-medium rounded-full border transition-colors ${
+              className={`px-2 sm:px-3 py-1 text-xs sm:text-sm font-medium rounded-full border transition-colors flex-shrink-0 ${
                 followState[activeTab][index]
                   ? "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
                   : "bg-blue-600 text-white border-blue-600 hover:bg-blue-700"

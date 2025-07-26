@@ -12,8 +12,7 @@ import SettingsAppearancePage from "./pages/SettingsAppearancePage";
 import SettingsPrivacyPage from "./pages/SettingsPrivacyPage";
 import SettingsHelpPage from "./pages/SettingsHelpPage";
 import SettingsAboutPage from "./pages/SettingsAboutPage";
-import EditProfilePage from "./pages/EditProfilePage";
-
+import SettingsGeneralPage from "./pages/SettingsGeneralPage";
 import UserPersonalPosts from "./pages/UserPersonalPosts";
 // import SettingsAccountPage from "./pages/SettingsAccountPage";
 // import SettingsGeneralPage from "./pages/SettingsGeneralPage";
@@ -25,12 +24,8 @@ import ProtectedRoute from "./components/routeLock/ProtectedRoute";
 import Feed from "./components/feed/Feed";
 import Post from "./components/post/PostCard";
 import NotificationsPage from "./pages/NotificationsPage";
-//import FollowUnfollowPage from "./pages/FollowUnfollowPage";
-import { ProfileProvider } from "./profileContext.jsx";
-import SavedPostsPage from "./pages/SavedPostsPage";
-
-
 import FollowUnfollow from "./pages/FollowUnfollow";
+import FollowUnfollowPage from "./pages/FollowUnfollow";
 import ChatPage from "./components/chat/ChatPage";
 import Layout from "./components/Layout";
 
@@ -133,6 +128,14 @@ function App() {
           </ProtectedRoute>
         } />
         
+        <Route path="/settings/general" element={
+          <ProtectedRoute>
+            <Layout>
+              <SettingsGeneralPage />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        
         <Route path="/blogs" element={
           <ProtectedRoute>
             <Layout>
@@ -141,7 +144,20 @@ function App() {
           </ProtectedRoute>
         } />
         
-        {/* <Route path="/follow" element={<FollowUnfollow />}/>  */}
+        <Route path="/user-posts" element={
+          <ProtectedRoute>
+            <Layout>
+              <UserPersonalPosts />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/follow-unfollow" element={
+          <ProtectedRoute>
+            <Layout>
+              <FollowUnfollowPage />
+            </Layout>
+          </ProtectedRoute>
+        } />
       </Routes>
     </div>
   );

@@ -3,6 +3,8 @@ import {
   followUser,
   unfollowUser,
   getFollowStatus,
+  getFollowers,
+  getFollowings,
 } from "../controllers/followController.mjs";
 import { protect } from "../middleware/authMiddleware.mjs";
 
@@ -20,6 +22,12 @@ router.delete("/:userId", protect, unfollowUser);
 // GET /{base-api}/follow/:userId/status
 router.get("/status/:userId", protect, getFollowStatus);
 
+// Get all followers of a user
+// GET /{base-api}/follow/:userId/followers
+router.get("/:userId/followers", protect, getFollowers);
 
+// Get all users that a user is following
+// GET /{base-api}/follow/:userId/followings
+router.get("/:userId/followings", protect, getFollowings);
 
 export default router;

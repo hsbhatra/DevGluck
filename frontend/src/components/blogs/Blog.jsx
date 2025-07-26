@@ -13,20 +13,20 @@ export default function Blogs() {
   };
 
   return (
-    <div className='bg-white shadow rounded-lg p-4 max-w-xl mx-auto my-4'>
+    <div className='bg-white shadow rounded-lg p-3 sm:p-4 max-w-xl mx-auto my-4 overflow-hidden'>
       {/* Header */}
-      <div className="flex justify-between items-start">
-        <div className="flex items-start space-x-3">
-          <div>
-            <h4 className="text-xl font-medium">{blog.blogTitle}</h4>
-            <p className="text-xs text-gray-500">{blog.blogAuther}</p>
+      <div className="flex justify-between items-start gap-3">
+        <div className="flex items-start space-x-3 min-w-0 flex-1">
+          <div className="min-w-0 flex-1">
+            <h4 className="text-lg sm:text-xl font-medium truncate">{blog.blogTitle}</h4>
+            <p className="text-xs text-gray-500 truncate">{blog.blogAuther}</p>
           </div>
         </div>
         <div className="text-xs text-gray-500 flex-shrink-0">{blog.time}</div>
       </div>
 
       {/*Blog Description*/}
-      <a href="https://en.wikipedia.org/wiki/Blog" className="text-sm text-gray-800 mt-4">{blog.content}</a>
+      <a href="https://en.wikipedia.org/wiki/Blog" className="text-sm text-gray-800 mt-4 block break-words">{blog.content}</a>
 
       {/*Blog Image*/}
       {blog.image && (

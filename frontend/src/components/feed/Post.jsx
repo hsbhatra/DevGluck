@@ -7,7 +7,7 @@ import SharePopup from "./SharePopUp";
 const Post = ({ type }) => {
   // ✅ states for interactions
   const [showComments, setShowComments] = useState(false);
-  const [likes, setLikes] = useState(120);
+  const [likes, setLikes] = useState(12);
   const [liked, setLiked] = useState(false);
   const [showShare, setShowShare] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -71,23 +71,12 @@ const Post = ({ type }) => {
 
   return (
     <>
-      <div className="p-4 border-y border-gray-300 bg-white">
-        {/* POST TYPE (Reposted info) */}
-        <div className="flex items-center gap-2 text-sm text-gray-500 mb-2 font-bold">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
-            <path
-              fill="#71767b"
-              d="M4.75 3.79l4.603 4.3-1.706 1.82L6 8.38v7.37c0 .97.784 1.75 1.75 1.75H13V20H7.75c-2.347 0-4.25-1.9-4.25-4.25V8.38L1.853 9.91.147 8.09l4.603-4.3zm11.5 2.71H11V4h5.25c2.347 0 4.25 1.9 4.25 4.25v7.37l1.647-1.53 1.706 1.82-4.603 4.3-4.603-4.3 1.706-1.82L18 15.62V8.25c0-.97-.784-1.75-1.75-1.75z"
-            />
-          </svg>
-          <span>Aniket Dev reposted</span>
-        </div>
-
+      <div className="bg-white rounded-lg shadow-sm p-3 sm:p-4 mb-4 w-full overflow-hidden">
         {/* POST CONTENT */}
-        <div className={`flex gap-4 ${type === "status" ? "flex-col" : ""}`}>
+        <div className={`flex gap-3 sm:gap-4 ${type === "status" ? "flex-col" : ""}`}>
           {/* AVATAR */}
           {type !== "status" && (
-            <div className="relative w-10 h-10 rounded-full overflow-hidden">
+            <div className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
               <img
                 src="/general/avatar.png"
                 alt="avatar"
@@ -97,12 +86,12 @@ const Post = ({ type }) => {
           )}
 
           {/* CONTENT */}
-          <div className="flex-1 flex flex-col gap-2">
+          <div className="flex-1 flex flex-col gap-2 min-w-0">
             {/* TOP */}
-            <div className="w-full flex justify-between">
-              <Link to="/AniketWebDev" className="flex gap-4">
+            <div className="w-full flex justify-between items-start">
+              <Link to="/AniketWebDev" className="flex gap-3 sm:gap-4 min-w-0 flex-1">
                 {type === "status" && (
-                  <div className="relative w-10 h-10 rounded-full overflow-hidden">
+                  <div className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
                     <img
                       src="/general/avatar.png"
                       alt="avatar"
@@ -111,33 +100,33 @@ const Post = ({ type }) => {
                   </div>
                 )}
                 <div
-                  className={`flex items-center gap-2 flex-wrap ${
+                  className={`flex items-center gap-2 flex-wrap min-w-0 ${
                     type === "status" ? "flex-col gap-0 items-start" : ""
                   }`}
                 >
-                  <h1 className="text-md font-bold">Aniket Dev</h1>
+                  <h1 className="text-md font-bold truncate">Aniket Dev</h1>
                   <span
-                    className={`text-gray-500 ${
+                    className={`text-gray-500 truncate ${
                       type === "status" ? "text-sm" : ""
                     }`}
                   >
                     @AniketWebDev
                   </span>
                   {type !== "status" && (
-                    <span className="text-gray-500">1 day ago</span>
+                    <span className="text-gray-500 text-sm">1 day ago</span>
                   )}
                 </div>
               </Link>
 
               {/* three dots or info icon */}
-              <button className="text-gray-500 hover:text-black">
+              <button className="text-gray-500 hover:text-black flex-shrink-0 ml-2">
                 <MoreHorizontal className="w-5 h-5" />
               </button>
             </div>
 
             {/* TEXT & MEDIA */}
-            <Link to="/AniketWebDev/status/123">
-              <p className={`${type === "status" ? "text-lg" : ""}`}>
+            <Link to="/AniketWebDev/status/123" className="min-w-0">
+              <p className={`${type === "status" ? "text-lg" : ""} text-gray-800 leading-relaxed break-words`}>
                 Lorem ipsum dolor sit amet consectetur adipisicing elit. Harum,
                 animi. Laborum commodi aliquam alias molestias odio, ab in,
                 reprehenderit excepturi temporibus, ducimus necessitatibus fugiat
@@ -149,59 +138,56 @@ const Post = ({ type }) => {
             <img
               src="/general/post.jpg"
               alt="post"
-              className="rounded-md max-w-full"
+              className="rounded-md w-full h-auto mt-3"
             />
 
             {type === "status" && (
               <span className="text-gray-500 text-sm">8:41 PM · Dec 5, 2024</span>
             )}
 
-            {/* ENHANCED INTERACTIONS - VERY VISIBLE */}
-            <div className="flex items-center justify-between py-4 border-t-2 border-blue-200 bg-gray-50 px-4 rounded-lg mt-4">
-              <div className="flex items-center space-x-6">
+            {/* INTERACTIONS - Clean and Simple */}
+            <div className="flex items-center justify-between pt-4 mt-4 border-t border-gray-100">
+              <div className="flex items-center space-x-4 sm:space-x-6">
                 {/* Like Button */}
                 <button
                   onClick={handleLike}
-                  className={`flex items-center space-x-2 transition-colors p-2 rounded-lg ${
-                    liked ? 'text-red-500 bg-red-50' : 'text-gray-600 hover:text-red-500 hover:bg-red-50'
+                  className={`flex items-center space-x-1 sm:space-x-2 transition-colors ${
+                    liked ? 'text-red-500' : 'text-gray-600 hover:text-red-500'
                   }`}
                 >
-                  <span className="text-3xl">{liked ? '❤️' : '🤍'}</span>
-                  <span className="text-sm font-bold">{likes} likes</span>
+                  <Heart className={`w-4 h-4 sm:w-5 sm:h-5 ${liked ? 'fill-current' : ''}`} />
+                  <span className="text-xs sm:text-sm font-medium">{likes} likes</span>
                 </button>
 
                 {/* Comment Button */}
                 <button
                   onClick={handleComment}
-                  className="flex items-center space-x-2 text-gray-600 hover:text-blue-500 hover:bg-blue-50 transition-colors p-2 rounded-lg"
+                  className="flex items-center space-x-1 sm:space-x-2 text-gray-600 hover:text-blue-500 transition-colors"
                 >
-                  <span className="text-3xl">💬</span>
-                  <span className="text-sm font-bold">{comments.length} comments</span>
+                  <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <span className="text-xs sm:text-sm font-medium">{comments.length} comments</span>
                 </button>
 
                 {/* Share Button */}
                 <button
                   onClick={handleShare}
-                  className="flex items-center space-x-2 text-gray-600 hover:text-green-500 hover:bg-green-50 transition-colors p-2 rounded-lg"
+                  className="flex items-center space-x-1 sm:space-x-2 text-gray-600 hover:text-green-500 transition-colors"
                 >
-                  <span className="text-3xl">📤</span>
-                  <span className="text-sm font-bold">Share</span>
+                  <Share2 className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <span className="text-xs sm:text-sm font-medium">Share</span>
                 </button>
               </div>
 
               {/* Save Button */}
               <button
                 onClick={handleSave}
-                className={`transition-colors p-2 rounded-lg ${
-                  saved ? 'text-blue-500 bg-blue-50' : 'text-gray-600 hover:text-blue-500 hover:bg-blue-50'
+                className={`transition-colors flex-shrink-0 ${
+                  saved ? 'text-blue-500' : 'text-gray-600 hover:text-blue-500'
                 }`}
               >
-                <span className="text-3xl">{saved ? '🔖' : '📖'}</span>
-                <span className="text-sm font-bold ml-2">{saved ? 'Saved' : 'Save'}</span>
+                <Bookmark className={`w-4 h-4 sm:w-5 sm:h-5 ${saved ? 'fill-current' : ''}`} />
               </button>
             </div>
-
-
           </div>
         </div>
       </div>

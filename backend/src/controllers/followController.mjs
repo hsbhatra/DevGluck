@@ -235,3 +235,251 @@ export const getFollowStatus = async (req, res) => {
     });
   }
 };
+
+// Get all followers of a user
+export const getFollowers = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const currentUserId = req.user.id;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const skip = (page - 1) * limit;
+
+    // Validation checks
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({
+        success: false,
+        error: "INVALID_USER_ID",
+        message: "Invalid user ID format"
+      });
+    }
+
+    // Verify current user is active and not deleted
+    const currentUser = await User.findById(currentUserId);
+    if (!currentUser || !currentUser.isActive || currentUser.isDeleted) {
+      return res.status(403).json({
+        success: false,
+        error: "ACCOUNT_INACTIVE",
+        message: "Your account is not active"
+      });
+    }
+
+    // Check if target user exists
+    const targetUser = await User.findById(userId, 'username firstName lastName avatar isActive isDeleted');
+    if (!targetUser) {
+      return res.status(404).json({
+        success: false,
+        error: "USER_NOT_FOUND",
+        message: "User does not exist"
+      });
+    }
+
+    // Get total count of followers
+    const totalFollowers = await Follow.countDocuments({ following: userId });
+
+    // Get followers with user details
+    const followers = await Follow.aggregate([
+      { $match: { following: new mongoose.Types.ObjectId(userId) } },
+      { $sort: { createdAt: -1 } },
+      { $skip: skip },
+      { $limit: limit },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'follower',
+          foreignField: '_id',
+          as: 'followerDetails'
+        }
+      },
+      { $unwind: '$followerDetails' },
+      {
+        $match: {
+          'followerDetails.isActive': true,
+          'followerDetails.isDeleted': { $ne: true }
+        }
+      },
+      {
+        $project: {
+          _id: 1,
+          followed_at: '$createdAt',
+          user: {
+            _id: '$followerDetails._id',
+            username: '$followerDetails.username',
+            firstName: '$followerDetails.firstName',
+            lastName: '$followerDetails.lastName',
+            avatar: '$followerDetails.avatar',
+            bio: '$followerDetails.bio'
+          }
+        }
+      }
+    ]);
+
+    // Check if current user follows each follower
+    const followersWithFollowStatus = await Promise.all(
+      followers.map(async (follower) => {
+        const isFollowing = await Follow.findOne({
+          follower: currentUserId,
+          following: follower.user._id
+        });
+
+        return {
+          ...follower,
+          is_following_back: !!isFollowing
+        };
+      })
+    );
+
+    res.status(200).json({
+      success: true,
+      data: {
+        followers: followersWithFollowStatus,
+        pagination: {
+          current_page: page,
+          total_pages: Math.ceil(totalFollowers / limit),
+          total_followers: totalFollowers,
+          has_next: page * limit < totalFollowers,
+          has_prev: page > 1
+        },
+        target_user: {
+          _id: targetUser._id,
+          username: targetUser.username,
+          firstName: targetUser.firstName,
+          lastName: targetUser.lastName,
+          avatar: targetUser.avatar
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error("Get followers error:", error);
+    res.status(500).json({
+      success: false,
+      error: "INTERNAL_SERVER_ERROR",
+      message: "An error occurred while fetching followers"
+    });
+  }
+};
+
+// Get all users that a user is following
+export const getFollowings = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const currentUserId = req.user.id;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const skip = (page - 1) * limit;
+
+    // Validation checks
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({
+        success: false,
+        error: "INVALID_USER_ID",
+        message: "Invalid user ID format"
+      });
+    }
+
+    // Verify current user is active and not deleted
+    const currentUser = await User.findById(currentUserId);
+    if (!currentUser || !currentUser.isActive || currentUser.isDeleted) {
+      return res.status(403).json({
+        success: false,
+        error: "ACCOUNT_INACTIVE",
+        message: "Your account is not active"
+      });
+    }
+
+    // Check if target user exists
+    const targetUser = await User.findById(userId, 'username firstName lastName avatar isActive isDeleted');
+    if (!targetUser) {
+      return res.status(404).json({
+        success: false,
+        error: "USER_NOT_FOUND",
+        message: "User does not exist"
+      });
+    }
+
+    // Get total count of followings
+    const totalFollowings = await Follow.countDocuments({ follower: userId });
+
+    // Get followings with user details
+    const followings = await Follow.aggregate([
+      { $match: { follower: new mongoose.Types.ObjectId(userId) } },
+      { $sort: { createdAt: -1 } },
+      { $skip: skip },
+      { $limit: limit },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'following',
+          foreignField: '_id',
+          as: 'followingDetails'
+        }
+      },
+      { $unwind: '$followingDetails' },
+      {
+        $match: {
+          'followingDetails.isActive': true,
+          'followingDetails.isDeleted': { $ne: true }
+        }
+      },
+      {
+        $project: {
+          _id: 1,
+          followed_at: '$createdAt',
+          user: {
+            _id: '$followingDetails._id',
+            username: '$followingDetails.username',
+            firstName: '$followingDetails.firstName',
+            lastName: '$followingDetails.lastName',
+            avatar: '$followingDetails.avatar',
+            bio: '$followingDetails.bio'
+          }
+        }
+      }
+    ]);
+
+    // Check if current user follows each following
+    const followingsWithFollowStatus = await Promise.all(
+      followings.map(async (following) => {
+        const isFollowing = await Follow.findOne({
+          follower: currentUserId,
+          following: following.user._id
+        });
+
+        return {
+          ...following,
+          is_following_back: !!isFollowing
+        };
+      })
+    );
+
+    res.status(200).json({
+      success: true,
+      data: {
+        followings: followingsWithFollowStatus,
+        pagination: {
+          current_page: page,
+          total_pages: Math.ceil(totalFollowings / limit),
+          total_followings: totalFollowings,
+          has_next: page * limit < totalFollowings,
+          has_prev: page > 1
+        },
+        target_user: {
+          _id: targetUser._id,
+          username: targetUser.username,
+          firstName: targetUser.firstName,
+          lastName: targetUser.lastName,
+          avatar: targetUser.avatar
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error("Get followings error:", error);
+    res.status(500).json({
+      success: false,
+      error: "INTERNAL_SERVER_ERROR",
+      message: "An error occurred while fetching followings"
+    });
+  }
+};
