@@ -12,6 +12,7 @@ import SettingsAppearancePage from "./pages/SettingsAppearancePage";
 import SettingsPrivacyPage from "./pages/SettingsPrivacyPage";
 import SettingsHelpPage from "./pages/SettingsHelpPage";
 import SettingsAboutPage from "./pages/SettingsAboutPage";
+import EditProfilePage from "./pages/EditProfilePage";
 
 import UserPersonalPosts from "./pages/UserPersonalPosts";
 // import SettingsAccountPage from "./pages/SettingsAccountPage";
@@ -24,6 +25,11 @@ import ProtectedRoute from "./components/routeLock/ProtectedRoute";
 import Feed from "./components/feed/Feed";
 import Post from "./components/post/PostCard";
 import NotificationsPage from "./pages/NotificationsPage";
+//import FollowUnfollowPage from "./pages/FollowUnfollowPage";
+import { ProfileProvider } from "./profileContext.jsx";
+import SavedPostsPage from "./pages/SavedPostsPage";
+
+
 import FollowUnfollow from "./pages/FollowUnfollow";
 import ChatPage from "./components/chat/ChatPage";
 import Layout from "./components/Layout";

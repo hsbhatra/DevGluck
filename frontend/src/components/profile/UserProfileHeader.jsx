@@ -1,8 +1,10 @@
 import React from "react";
 import { Bookmark, Grid3x3 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 
 const UserProfileHeader = () => {
+  const navigate = useNavigate();
   return (
     <div className="bg-white shadow rounded-lg p-6 max-w-4xl mx-auto">
       {/* Top Section */}
@@ -13,6 +15,7 @@ const UserProfileHeader = () => {
             src="https://randomuser.me/api/portraits/men/75.jpg"
             alt="Profile"
             className="w-20 h-20 rounded-full object-cover mb-2 md:mb-0"
+            onError={(e) => { e.target.onerror = null; e.target.src = '/general/avatar.png'; }}
           />
           <div className="space-y-1">
             <h2 className="text-xl font-semibold text-gray-800">Robert Fox</h2>
@@ -35,6 +38,15 @@ const UserProfileHeader = () => {
             <p className="text-sm text-gray-500">Following</p>
           </div>
         </div>
+      </div>
+      {/* Edit Profile Button */}
+      <div className="flex justify-center mt-4">
+        <button
+          className="bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium rounded-lg px-6 py-2 shadow-sm border border-gray-200 transition"
+          onClick={() => navigate('/edit-profile')}
+        >
+          Edit profile
+        </button>
       </div>
 
       {/* Tabs */}
