@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import { Heart, MessageCircle, Share2, Bookmark, MoreHorizontal, Trash2 } from "lucide-react";
 import { likePost, addComment, fetchComments, deletePost } from "../../slices/PostSlice.js";
 import Comments from "./Comments";
@@ -97,18 +98,28 @@ const Post = ({ post, type }) => {
 
   return (
     <>
-      <div className="bg-white rounded-lg shadow-sm p-3 sm:p-4 mb-4 w-full overflow-hidden">
+      <motion.div 
+        className="bg-white rounded-lg shadow-sm p-3 sm:p-4 mb-4 w-full overflow-hidden"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        whileHover={{ y: -2, boxShadow: "0 10px 25px rgba(0,0,0,0.1)" }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
+      >
         {/* POST CONTENT */}
         <div className={`flex gap-3 sm:gap-4 ${type === "status" ? "flex-col" : ""}`}>
           {/* AVATAR */}
           {type !== "status" && (
-            <div className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
+            <motion.div 
+              className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0"
+              whileHover={{ scale: 1.05 }}
+              transition={{ duration: 0.2 }}
+            >
               <img
                 src={post.author?.avatar || "/general/avatar.png"}
                 alt="avatar"
                 className="w-full h-full object-cover"
               />
-            </div>
+            </motion.div>
           )}
 
           {/* CONTENT */}
@@ -117,13 +128,17 @@ const Post = ({ post, type }) => {
             <div className="w-full flex justify-between items-start">
               <Link to={`/profile/${post.author?.username || post.author?._id}`} className="flex gap-3 sm:gap-4 min-w-0 flex-1">
                 {type === "status" && (
-                  <div className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
+                  <motion.div 
+                    className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0"
+                    whileHover={{ scale: 1.05 }}
+                    transition={{ duration: 0.2 }}
+                  >
                     <img
                       src={post.author?.avatar || "/general/avatar.png"}
                       alt="avatar"
                       className="w-full h-full object-cover"
                     />
-                  </div>
+                  </motion.div>
                 )}
                 <div
                   className={`flex items-center gap-2 flex-wrap min-w-0 ${
@@ -148,25 +163,38 @@ const Post = ({ post, type }) => {
 
               {/* three dots or info icon */}
               <div className="relative flex-shrink-0 ml-2" ref={deleteMenuRef}>
-                <button 
+                <motion.button 
                   onClick={() => setShowDeleteMenu(!showDeleteMenu)}
                   className="text-gray-500 hover:text-black"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  transition={{ duration: 0.2 }}
                 >
                   <MoreHorizontal className="w-5 h-5" />
-                </button>
+                </motion.button>
                 
                 {/* Delete Menu */}
-                {showDeleteMenu && post.author?._id === currentUser?._id && (
-                  <div className="absolute right-0 top-8 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-[120px]">
-                    <button
-                      onClick={handleDelete}
-                      className="w-full px-4 py-2 text-left text-red-600 hover:bg-red-50 flex items-center gap-2"
+                <AnimatePresence>
+                  {showDeleteMenu && post.author?._id === currentUser?._id && (
+                    <motion.div 
+                      className="absolute right-0 top-8 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-[120px]"
+                      initial={{ opacity: 0, scale: 0.8, y: -10 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.8, y: -10 }}
+                      transition={{ duration: 0.2 }}
                     >
-                      <Trash2 className="w-4 h-4" />
-                      Delete
-                    </button>
-                  </div>
-                )}
+                      <motion.button
+                        onClick={handleDelete}
+                        className="w-full px-4 py-2 text-left text-red-600 hover:bg-red-50 flex items-center gap-2"
+                        whileHover={{ backgroundColor: "#fef2f2" }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        Delete
+                      </motion.button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             </div>
 
@@ -179,10 +207,14 @@ const Post = ({ post, type }) => {
 
             {/* MEDIA IMAGE */}
             {post.media && (
-              <img
+              <motion.img
                 src={post.media}
                 alt="post"
                 className="rounded-md w-full h-auto mt-3"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3 }}
+                whileHover={{ scale: 1.02 }}
               />
             )}
 
@@ -194,136 +226,205 @@ const Post = ({ post, type }) => {
             <div className="flex items-center justify-between pt-4 mt-4 border-t border-gray-100">
               <div className="flex items-center space-x-4 sm:space-x-6">
                 {/* Like Button */}
-                <button
+                <motion.button
                   onClick={handleLike}
                   disabled={likeLoading[post._id]}
                   className={`flex items-center space-x-1 sm:space-x-2 transition-colors ${
                     post.isLiked ? 'text-red-500' : 'text-gray-600 hover:text-red-500'
                   } ${likeLoading[post._id] ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ duration: 0.2 }}
                 >
-                  <Heart className={`w-4 h-4 sm:w-5 sm:h-5 ${post.isLiked ? 'fill-current' : ''}`} />
+                  <motion.div
+                    animate={post.isLiked ? { scale: [1, 1.2, 1] } : {}}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <Heart className={`w-4 h-4 sm:w-5 sm:h-5 ${post.isLiked ? 'fill-current' : ''}`} />
+                  </motion.div>
                   <span className="text-xs sm:text-sm font-medium">{post.likes || 0} likes</span>
-                </button>
+                </motion.button>
 
                 {/* Comment Button */}
-                <button
+                <motion.button
                   onClick={handleComment}
                   className="flex items-center space-x-1 sm:space-x-2 text-gray-600 hover:text-blue-500 transition-colors"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ duration: 0.2 }}
                 >
                   <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5" />
                   <span className="text-xs sm:text-sm font-medium">{post.comments || 0} comments</span>
-                </button>
+                </motion.button>
 
                 {/* Share Button */}
-                <button
+                <motion.button
                   onClick={handleShare}
                   className="flex items-center space-x-1 sm:space-x-2 text-gray-600 hover:text-green-500 transition-colors"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ duration: 0.2 }}
                 >
                   <Share2 className="w-4 h-4 sm:w-5 sm:h-5" />
                   <span className="text-xs sm:text-sm font-medium">Share</span>
-                </button>
+                </motion.button>
               </div>
 
               {/* Save Button */}
-              <button
+              <motion.button
                 onClick={handleSave}
                 className={`transition-colors flex-shrink-0 ${
                   saved ? 'text-blue-500' : 'text-gray-600 hover:text-blue-500'
                 }`}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                transition={{ duration: 0.2 }}
               >
-                <Bookmark className={`w-4 h-4 sm:w-5 sm:h-5 ${saved ? 'fill-current' : ''}`} />
-              </button>
+                <motion.div
+                  animate={saved ? { scale: [1, 1.2, 1] } : {}}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Bookmark className={`w-4 h-4 sm:w-5 sm:h-5 ${saved ? 'fill-current' : ''}`} />
+                </motion.div>
+              </motion.button>
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* SHARE POPUP */}
-      {showShare && <SharePopup onClose={() => setShowShare(false)} />}
+      <AnimatePresence>
+        {showShare && <SharePopup onClose={() => setShowShare(false)} />}
+      </AnimatePresence>
 
       {/* COMMENTS MODAL */}
-      {showComments && (
-        <>
-          <div className="fixed inset-0 backdrop-blur-md bg-white/20 z-50" onClick={() => setShowComments(false)}></div>
-          <div className="fixed inset-0 flex items-center justify-center z-50 p-4" onClick={() => setShowComments(false)}>
-            <div className="bg-white rounded-xl w-full max-w-md max-h-[80vh] overflow-y-auto shadow-2xl" onClick={(e) => e.stopPropagation()}>
-              {/* Modal Header */}
-              <div className="flex items-center justify-between p-4 border-b">
-                <h3 className="font-semibold text-lg">Comments</h3>
-                <button
-                  onClick={() => setShowComments(false)}
-                  className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-
-              {/* Comments List */}
-              <div className="p-4 space-y-4 max-h-96 overflow-y-auto">
-                {commentLoading[post._id] ? (
-                  <div className="flex justify-center py-4">
-                    <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                  </div>
-                ) : comments.length > 0 ? (
-                  comments.map((comment) => (
-                    <div key={comment._id} className="flex items-start space-x-3">
-                      <img
-                        src={comment.userId?.avatar || "/general/avatar.png"}
-                        alt={comment.userId?.name}
-                        className="w-8 h-8 rounded-full object-cover"
-                      />
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-2">
-                          <span className="font-semibold text-sm">
-                            {comment.userId?.name}
-                          </span>
-                          <span className="text-xs text-gray-500">{formatDate(comment.createdAt)}</span>
-                        </div>
-                        <p className="text-sm text-gray-700 mt-1">{comment.text}</p>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="text-center text-gray-500 py-4">
-                    No comments yet. Be the first to comment!
-                  </div>
-                )}
-              </div>
-
-              {/* Add Comment */}
-              <div className="p-4 border-t">
-                <form onSubmit={handleAddComment} className="flex items-center space-x-3">
-                  <img
-                    src={currentUser?.avatar || "/general/avatar.png"}
-                    alt="Your avatar"
-                    className="w-8 h-8 rounded-full object-cover"
-                  />
-                  <input
-                    type="text"
-                    value={commentInput}
-                    onChange={(e) => setCommentInput(e.target.value)}
-                    placeholder="Add a comment..."
-                    className="flex-1 bg-gray-50 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                  <button
-                    type="submit"
-                    disabled={!commentInput.trim()}
-                    className={`text-sm font-semibold px-3 py-1 rounded-full transition-colors ${
-                      commentInput.trim()
-                        ? 'text-blue-600 hover:text-blue-700'
-                        : 'text-gray-400 cursor-not-allowed'
-                    }`}
+      <AnimatePresence>
+        {showComments && (
+          <>
+            <motion.div 
+              className="fixed inset-0 backdrop-blur-md bg-white/20 z-50" 
+              onClick={() => setShowComments(false)}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            />
+            <motion.div 
+              className="fixed inset-0 flex items-center justify-center z-50 p-4" 
+              onClick={() => setShowComments(false)}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <motion.div 
+                className="bg-white rounded-xl w-full max-w-md max-h-[80vh] overflow-y-auto shadow-2xl" 
+                onClick={(e) => e.stopPropagation()}
+                initial={{ opacity: 0, scale: 0.8, y: 50 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.8, y: 50 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+              >
+                {/* Modal Header */}
+                <div className="flex items-center justify-between p-4 border-b">
+                  <h3 className="font-semibold text-lg">Comments</h3>
+                  <motion.button
+                    onClick={() => setShowComments(false)}
+                    className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100"
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    transition={{ duration: 0.2 }}
                   >
-                    Post
-                  </button>
-                </form>
-              </div>
-            </div>
-          </div>
-        </>
-      )}
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </motion.button>
+                </div>
+
+                {/* Comments List */}
+                <div className="p-4 space-y-4 max-h-96 overflow-y-auto">
+                  {commentLoading[post._id] ? (
+                    <motion.div 
+                      className="flex justify-center py-4"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                    </motion.div>
+                  ) : comments.length > 0 ? (
+                    comments.map((comment, index) => (
+                      <motion.div 
+                        key={comment._id} 
+                        className="flex items-start space-x-3"
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.3, delay: index * 0.1 }}
+                      >
+                        <img
+                          src={comment.userId?.avatar || "/general/avatar.png"}
+                          alt={comment.userId?.name}
+                          className="w-8 h-8 rounded-full object-cover"
+                        />
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2">
+                            <span className="font-semibold text-sm">
+                              {comment.userId?.name}
+                            </span>
+                            <span className="text-xs text-gray-500">{formatDate(comment.createdAt)}</span>
+                          </div>
+                          <p className="text-sm text-gray-700 mt-1">{comment.text}</p>
+                        </div>
+                      </motion.div>
+                    ))
+                  ) : (
+                    <motion.div 
+                      className="text-center text-gray-500 py-4"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      No comments yet. Be the first to comment!
+                    </motion.div>
+                  )}
+                </div>
+
+                {/* Add Comment */}
+                <div className="p-4 border-t">
+                  <form onSubmit={handleAddComment} className="flex items-center space-x-3">
+                    <img
+                      src={currentUser?.avatar || "/general/avatar.png"}
+                      alt="Your avatar"
+                      className="w-8 h-8 rounded-full object-cover"
+                    />
+                    <input
+                      type="text"
+                      value={commentInput}
+                      onChange={(e) => setCommentInput(e.target.value)}
+                      placeholder="Add a comment..."
+                      className="flex-1 bg-gray-50 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <motion.button
+                      type="submit"
+                      disabled={!commentInput.trim()}
+                      className={`text-sm font-semibold px-3 py-1 rounded-full transition-colors ${
+                        commentInput.trim()
+                          ? 'text-blue-600 hover:text-blue-700'
+                          : 'text-gray-400 cursor-not-allowed'
+                      }`}
+                      whileHover={commentInput.trim() ? { scale: 1.05 } : {}}
+                      whileTap={commentInput.trim() ? { scale: 0.95 } : {}}
+                      transition={{ duration: 0.2 }}
+                    >
+                      Post
+                    </motion.button>
+                  </form>
+                </div>
+              </motion.div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </>
   );
 };

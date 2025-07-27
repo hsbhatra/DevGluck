@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Image, Send, X } from 'lucide-react';
 import { createPost } from '../../slices/PostSlice.js';
 
@@ -87,15 +88,27 @@ const PostInput = ({
     : "bg-white rounded-lg shadow-sm p-4 mb-4";
 
   return (
-    <div className={`${containerClasses} ${className}`}>
+    <motion.div 
+      className={`${containerClasses} ${className}`}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+    >
       <form onSubmit={handleSubmit}>
         {/* User Info - Only show in inline mode or when explicitly requested */}
         {showUserInfo && (
-          <div className="flex items-start gap-3 mb-4">
-            <img
+          <motion.div 
+            className="flex items-start gap-3 mb-4"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.3, delay: 0.1 }}
+          >
+            <motion.img
               src={currentUser?.avatar || '/general/avatar.png'}
               alt="avatar"
               className="w-10 h-10 rounded-full object-cover"
+              whileHover={{ scale: 1.05 }}
+              transition={{ duration: 0.2 }}
             />
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
@@ -105,11 +118,11 @@ const PostInput = ({
                 <span className="text-gray-500 text-sm">@{currentUser?.username}</span>
               </div>
             </div>
-          </div>
+          </motion.div>
         )}
 
         {/* Text Input */}
-        <textarea
+        <motion.textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
           onKeyPress={handleKeyPress}
@@ -117,36 +130,59 @@ const PostInput = ({
           className="w-full p-3 border border-gray-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           rows={mode === 'modal' ? "4" : "3"}
           maxLength="1000"
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3, delay: 0.2 }}
+          whileFocus={{ scale: 1.01 }}
         />
 
         {/* Media Preview */}
-        {mediaPreview && (
-          <div className="relative mt-3">
-            <img
-              src={mediaPreview}
-              alt="preview"
-              className="w-full max-h-64 object-cover rounded-lg"
-            />
-            <button
-              type="button"
-              onClick={removeMedia}
-              className="absolute top-2 right-2 bg-black bg-opacity-50 text-white rounded-full p-1 hover:bg-opacity-70"
+        <AnimatePresence>
+          {mediaPreview && (
+            <motion.div 
+              className="relative mt-3"
+              initial={{ opacity: 0, scale: 0.8, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.8, y: -10 }}
+              transition={{ duration: 0.3 }}
             >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        )}
+              <img
+                src={mediaPreview}
+                alt="preview"
+                className="w-full max-h-64 object-cover rounded-lg"
+              />
+              <motion.button
+                type="button"
+                onClick={removeMedia}
+                className="absolute top-2 right-2 bg-black bg-opacity-50 text-white rounded-full p-1 hover:bg-opacity-70"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                transition={{ duration: 0.2 }}
+              >
+                <X className="w-4 h-4" />
+              </motion.button>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Character Count and Actions */}
-        <div className="flex justify-between items-center mt-3">
+        <motion.div 
+          className="flex justify-between items-center mt-3"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.3 }}
+        >
           <div className="flex items-center gap-2">
-            <button
+            <motion.button
               type="button"
               onClick={() => fileInputRef.current?.click()}
               className="text-blue-500 hover:text-blue-600 p-2 rounded-full hover:bg-blue-50"
+              whileHover={{ scale: 1.1, rotate: 5 }}
+              whileTap={{ scale: 0.9 }}
+              transition={{ duration: 0.2 }}
             >
               <Image className="w-5 h-5" />
-            </button>
+            </motion.button>
             <input
               ref={fileInputRef}
               type="file"
@@ -157,10 +193,17 @@ const PostInput = ({
           </div>
           
           <div className="flex items-center gap-3">
-            <span className={`text-sm ${content.length > 900 ? 'text-red-500' : 'text-gray-500'}`}>
+            <motion.span 
+              className={`text-sm ${content.length > 900 ? 'text-red-500' : 'text-gray-500'}`}
+              animate={{ 
+                color: content.length > 900 ? '#ef4444' : '#6b7280',
+                scale: content.length > 900 ? 1.05 : 1
+              }}
+              transition={{ duration: 0.2 }}
+            >
               {content.length}/1000
-            </span>
-            <button
+            </motion.span>
+            <motion.button
               type="submit"
               disabled={createLoading || (!content.trim() && !media)}
               className={`flex items-center gap-2 px-4 py-2 rounded-full font-semibold transition-colors ${
@@ -168,25 +211,40 @@ const PostInput = ({
                   ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                   : 'bg-blue-500 text-white hover:bg-blue-600'
               }`}
+              whileHover={!createLoading && (content.trim() || media) ? { scale: 1.05 } : {}}
+              whileTap={!createLoading && (content.trim() || media) ? { scale: 0.95 } : {}}
+              transition={{ duration: 0.2 }}
             >
               {createLoading ? (
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <motion.div 
+                  className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                />
               ) : (
                 <Send className="w-4 h-4" />
               )}
               Post
-            </button>
+            </motion.button>
           </div>
-        </div>
+        </motion.div>
 
         {/* Error Message */}
-        {createError && (
-          <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-red-600 text-sm">{createError}</p>
-          </div>
-        )}
+        <AnimatePresence>
+          {createError && (
+            <motion.div 
+              className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <p className="text-red-600 text-sm">{createError}</p>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </form>
-    </div>
+    </motion.div>
   );
 };
 
