@@ -1,42 +1,60 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { Heart, MessageCircle, Share2, Bookmark, MoreHorizontal } from "lucide-react";
+import { Heart, MessageCircle, Share2, Bookmark, MoreHorizontal, Trash2 } from "lucide-react";
+import { likePost, addComment, fetchComments, deletePost } from "../../slices/PostSlice.js";
 import Comments from "./Comments";
 import SharePopup from "./SharePopUp";
 
-const Post = ({ type }) => {
+const Post = ({ post, type }) => {
+  const dispatch = useDispatch();
+  const { currentUser } = useSelector((state) => state.users);
+  const { comments: postComments, likeLoading, commentLoading } = useSelector((state) => state.posts);
+  
   // ✅ states for interactions
   const [showComments, setShowComments] = useState(false);
-  const [likes, setLikes] = useState(12);
-  const [liked, setLiked] = useState(false);
   const [showShare, setShowShare] = useState(false);
   const [saved, setSaved] = useState(false);
   const [commentInput, setCommentInput] = useState('');
-  const [comments, setComments] = useState([
-    {
-      id: 1,
-      user: 'Daniel Brown',
-      username: 'daniel_b',
-      avatar: '/general/avatar2.png',
-      text: 'Fantastic post! Your content always brings a smile to my face. Keep up the great work! 👏',
-      time: '2 hours ago',
-      likes: 5
-    },
-    {
-      id: 2,
-      user: 'Sarah Wilson',
-      username: 'sarah_w',
-      avatar: 'https://randomuser.me/api/portraits/women/44.jpg',
-      text: 'Love this! Amazing photography skills 📸',
-      time: '1 hour ago',
-      likes: 3
-    }
-  ]);
+  const [showDeleteMenu, setShowDeleteMenu] = useState(false);
+  const deleteMenuRef = useRef(null);
+
+  // Get comments for this post
+  const comments = postComments[post._id] || [];
+
+  // Format date
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInHours = Math.floor((now - date) / (1000 * 60 * 60));
+    
+    if (diffInHours < 1) return 'Just now';
+    if (diffInHours < 24) return `${diffInHours}h ago`;
+    if (diffInHours < 48) return '1 day ago';
+    return date.toLocaleDateString();
+  };
+
+  // Click outside handler for delete menu
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (deleteMenuRef.current && !deleteMenuRef.current.contains(event.target)) {
+        setShowDeleteMenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   // ✅ handlers
-  const handleLike = () => {
-    setLiked((prev) => !prev);
-    setLikes((prev) => (liked ? prev - 1 : prev + 1));
+  const handleLike = async () => {
+    try {
+      await dispatch(likePost(post._id)).unwrap();
+    } catch (error) {
+      console.error('Failed to like post:', error);
+    }
   };
 
   const handleSave = () => {
@@ -44,29 +62,37 @@ const Post = ({ type }) => {
   };
 
   const handleComment = () => {
+    if (!showComments) {
+      dispatch(fetchComments(post._id));
+    }
     setShowComments(prev => !prev);
   };
 
-  const handleAddComment = (e) => {
+  const handleAddComment = async (e) => {
     e.preventDefault();
     if (!commentInput.trim()) return;
     
-    const newComment = {
-      id: Date.now(),
-      user: 'You',
-      username: 'you',
-      avatar: '/general/avatar.png',
-      text: commentInput.trim(),
-      time: 'Just now',
-      likes: 0
-    };
-    
-    setComments(prev => [newComment, ...prev]);
-    setCommentInput('');
+    try {
+      await dispatch(addComment({ postId: post._id, commentText: commentInput.trim() })).unwrap();
+      setCommentInput('');
+    } catch (error) {
+      console.error('Failed to add comment:', error);
+    }
   };
 
   const handleShare = () => {
     setShowShare(true);
+  };
+
+  const handleDelete = async () => {
+    if (window.confirm('Are you sure you want to delete this post?')) {
+      try {
+        await dispatch(deletePost(post._id)).unwrap();
+      } catch (error) {
+        console.error('Failed to delete post:', error);
+      }
+    }
+    setShowDeleteMenu(false);
   };
 
   return (
@@ -78,7 +104,7 @@ const Post = ({ type }) => {
           {type !== "status" && (
             <div className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
               <img
-                src="/general/avatar.png"
+                src={post.author?.avatar || "/general/avatar.png"}
                 alt="avatar"
                 className="w-full h-full object-cover"
               />
@@ -89,11 +115,11 @@ const Post = ({ type }) => {
           <div className="flex-1 flex flex-col gap-2 min-w-0">
             {/* TOP */}
             <div className="w-full flex justify-between items-start">
-              <Link to="/AniketWebDev" className="flex gap-3 sm:gap-4 min-w-0 flex-1">
+              <Link to={`/profile/${post.author?.username || post.author?._id}`} className="flex gap-3 sm:gap-4 min-w-0 flex-1">
                 {type === "status" && (
                   <div className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
                     <img
-                      src="/general/avatar.png"
+                      src={post.author?.avatar || "/general/avatar.png"}
                       alt="avatar"
                       className="w-full h-full object-cover"
                     />
@@ -104,45 +130,64 @@ const Post = ({ type }) => {
                     type === "status" ? "flex-col gap-0 items-start" : ""
                   }`}
                 >
-                  <h1 className="text-md font-bold truncate">Aniket Dev</h1>
+                  <h1 className="text-md font-bold truncate">
+                    {post.author?.name}
+                  </h1>
                   <span
                     className={`text-gray-500 truncate ${
                       type === "status" ? "text-sm" : ""
                     }`}
                   >
-                    @AniketWebDev
+                    @{post.author?.username}
                   </span>
                   {type !== "status" && (
-                    <span className="text-gray-500 text-sm">1 day ago</span>
+                    <span className="text-gray-500 text-sm">{formatDate(post.createdAt)}</span>
                   )}
                 </div>
               </Link>
 
               {/* three dots or info icon */}
-              <button className="text-gray-500 hover:text-black flex-shrink-0 ml-2">
-                <MoreHorizontal className="w-5 h-5" />
-              </button>
+              <div className="relative flex-shrink-0 ml-2" ref={deleteMenuRef}>
+                <button 
+                  onClick={() => setShowDeleteMenu(!showDeleteMenu)}
+                  className="text-gray-500 hover:text-black"
+                >
+                  <MoreHorizontal className="w-5 h-5" />
+                </button>
+                
+                {/* Delete Menu */}
+                {showDeleteMenu && post.author?._id === currentUser?._id && (
+                  <div className="absolute right-0 top-8 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-[120px]">
+                    <button
+                      onClick={handleDelete}
+                      className="w-full px-4 py-2 text-left text-red-600 hover:bg-red-50 flex items-center gap-2"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      Delete
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* TEXT & MEDIA */}
-            <Link to="/AniketWebDev/status/123" className="min-w-0">
+            <Link to={`/post/${post._id}`} className="min-w-0">
               <p className={`${type === "status" ? "text-lg" : ""} text-gray-800 leading-relaxed break-words`}>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Harum,
-                animi. Laborum commodi aliquam alias molestias odio, ab in,
-                reprehenderit excepturi temporibus, ducimus necessitatibus fugiat
-                iure nam voluptas soluta pariatur inventore.
+                {post.content}
               </p>
             </Link>
 
             {/* MEDIA IMAGE */}
-            <img
-              src="/general/post.jpg"
-              alt="post"
-              className="rounded-md w-full h-auto mt-3"
-            />
+            {post.media && (
+              <img
+                src={post.media}
+                alt="post"
+                className="rounded-md w-full h-auto mt-3"
+              />
+            )}
 
             {type === "status" && (
-              <span className="text-gray-500 text-sm">8:41 PM · Dec 5, 2024</span>
+              <span className="text-gray-500 text-sm">{formatDate(post.createdAt)}</span>
             )}
 
             {/* INTERACTIONS - Clean and Simple */}
@@ -151,12 +196,13 @@ const Post = ({ type }) => {
                 {/* Like Button */}
                 <button
                   onClick={handleLike}
+                  disabled={likeLoading[post._id]}
                   className={`flex items-center space-x-1 sm:space-x-2 transition-colors ${
-                    liked ? 'text-red-500' : 'text-gray-600 hover:text-red-500'
-                  }`}
+                    post.isLiked ? 'text-red-500' : 'text-gray-600 hover:text-red-500'
+                  } ${likeLoading[post._id] ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
-                  <Heart className={`w-4 h-4 sm:w-5 sm:h-5 ${liked ? 'fill-current' : ''}`} />
-                  <span className="text-xs sm:text-sm font-medium">{likes} likes</span>
+                  <Heart className={`w-4 h-4 sm:w-5 sm:h-5 ${post.isLiked ? 'fill-current' : ''}`} />
+                  <span className="text-xs sm:text-sm font-medium">{post.likes || 0} likes</span>
                 </button>
 
                 {/* Comment Button */}
@@ -165,7 +211,7 @@ const Post = ({ type }) => {
                   className="flex items-center space-x-1 sm:space-x-2 text-gray-600 hover:text-blue-500 transition-colors"
                 >
                   <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5" />
-                  <span className="text-xs sm:text-sm font-medium">{comments.length} comments</span>
+                  <span className="text-xs sm:text-sm font-medium">{post.comments || 0} comments</span>
                 </button>
 
                 {/* Share Button */}
@@ -216,36 +262,41 @@ const Post = ({ type }) => {
 
               {/* Comments List */}
               <div className="p-4 space-y-4 max-h-96 overflow-y-auto">
-                {comments.map((comment) => (
-                  <div key={comment.id} className="flex items-start space-x-3">
-                    <img
-                      src={comment.avatar}
-                      alt={comment.user}
-                      className="w-8 h-8 rounded-full object-cover"
-                    />
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-2">
-                        <span className="font-semibold text-sm">{comment.user}</span>
-                        <span className="text-xs text-gray-500">{comment.time}</span>
-                      </div>
-                      <p className="text-sm text-gray-700 mt-1">{comment.text}</p>
-                      <div className="flex items-center space-x-4 mt-2">
-                        <button className="text-xs text-gray-500 hover:text-red-500 flex items-center space-x-1">
-                          <span>❤️</span>
-                          <span>{comment.likes}</span>
-                        </button>
-                        <button className="text-xs text-gray-500 hover:text-blue-500">Reply</button>
+                {commentLoading[post._id] ? (
+                  <div className="flex justify-center py-4">
+                    <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                  </div>
+                ) : comments.length > 0 ? (
+                  comments.map((comment) => (
+                    <div key={comment._id} className="flex items-start space-x-3">
+                      <img
+                        src={comment.userId?.avatar || "/general/avatar.png"}
+                        alt={comment.userId?.name}
+                        className="w-8 h-8 rounded-full object-cover"
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-2">
+                          <span className="font-semibold text-sm">
+                            {comment.userId?.name}
+                          </span>
+                          <span className="text-xs text-gray-500">{formatDate(comment.createdAt)}</span>
+                        </div>
+                        <p className="text-sm text-gray-700 mt-1">{comment.text}</p>
                       </div>
                     </div>
+                  ))
+                ) : (
+                  <div className="text-center text-gray-500 py-4">
+                    No comments yet. Be the first to comment!
                   </div>
-                ))}
+                )}
               </div>
 
               {/* Add Comment */}
               <div className="p-4 border-t">
                 <form onSubmit={handleAddComment} className="flex items-center space-x-3">
                   <img
-                    src="/general/avatar.png"
+                    src={currentUser?.avatar || "/general/avatar.png"}
                     alt="Your avatar"
                     className="w-8 h-8 rounded-full object-cover"
                   />

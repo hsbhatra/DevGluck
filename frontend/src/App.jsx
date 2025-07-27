@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import "./App.css";
 
 // IMPORT PAGES
@@ -31,6 +32,29 @@ import Layout from "./components/Layout";
 
 
 function App() {
+  const dispatch = useDispatch();
+
+  // Load user data from localStorage on app startup
+  useEffect(() => {
+    const loadUserFromStorage = () => {
+      try {
+        const storedUser = localStorage.getItem("currentUser");
+        if (storedUser) {
+          const userData = JSON.parse(storedUser);
+          // Dispatch action to set user in Redux state
+          dispatch({ 
+            type: 'user/setCurrentUser', 
+            payload: userData 
+          });
+        }
+      } catch (error) {
+        console.error("Error loading user from storage:", error);
+        localStorage.removeItem("currentUser");
+      }
+    };
+
+    loadUserFromStorage();
+  }, [dispatch]);
 
   return (
     <div className="App">

@@ -26,7 +26,7 @@ export const signUpUser = createAsyncThunk(
   'user/signup',
   async (formData, thunkAPI) => {
     try {
-      const response = await axiosInstance.post('/auth/signup', formData);
+      const response = await axiosInstance.post('/api/auth/signup', formData);
       console.log("UserSlice: signUpUser response:", response.data);
       return response.data;
     } catch (error) {
@@ -40,7 +40,7 @@ export const signUpUser = createAsyncThunk(
 export const signInUser = createAsyncThunk(
   'user/signin',
   async (formData, thunkAPI) => {
-    const response = await axiosInstance.post('/auth/login', formData);
+    const response = await axiosInstance.post('/api/auth/login', formData);
     return response.data;
   }
 );
@@ -56,6 +56,11 @@ const userSlice = createSlice({
   name: 'user',
   initialState,
   reducers: {
+    setCurrentUser: (state, action) => {
+      state.currentUser = action.payload;
+      state.isAuthenticated = true;
+      console.log("User loaded from storage:", state);
+    },
     clearUser: (state) => {
       state.currentUser = null;
       state.isAuthenticated = false;
@@ -69,10 +74,16 @@ const userSlice = createSlice({
         state.error = null;
       })
       .addCase(signUpUser.fulfilled, (state, action) => {
-        state.currentUser = action.payload;
+        // Handle the response structure from backend
+        const response = action.payload;
+        const userData = {
+          ...response.user,
+          token: response.token
+        };
+        state.currentUser = userData;
         state.isAuthenticated = true;
         state.loading = false;
-        localStorage.setItem('currentUser', JSON.stringify(action.payload));
+        localStorage.setItem('currentUser', JSON.stringify(userData));
         console.log("User set:", state);
       })
       .addCase(signUpUser.rejected, (state, action) => {
@@ -88,10 +99,16 @@ const userSlice = createSlice({
         state.error = null;
       })
       .addCase(signInUser.fulfilled, (state, action) => {
-        state.currentUser = action.payload;
+        // Handle the response structure from backend
+        const response = action.payload;
+        const userData = {
+          ...response.user,
+          token: response.token
+        };
+        state.currentUser = userData;
         state.isAuthenticated = true;
         state.loading = false;
-        localStorage.setItem('currentUser', JSON.stringify(action.payload));
+        localStorage.setItem('currentUser', JSON.stringify(userData));
         console.log("User signed in:", state);
       })
       .addCase(signInUser.rejected, (state, action) => {

@@ -4,6 +4,7 @@ import userRoutes from "./userRoutes.mjs";
 import notificationRoutes from "./notificationRoutes.mjs";
 import followRoutes from "./followRoutes.mjs";
 import messageRoutes from "./messageRoute.mjs";
+import postRoutes from "./postRoute.mjs";
 import { protect } from "../middleware/authMiddleware.mjs";
 
 const router = express.Router();
@@ -13,6 +14,7 @@ router.use("/notifications", protect, notificationRoutes);
 router.use("/users", protect, userRoutes);
 router.use("/users/follow", protect, followRoutes);
 router.use("/messages", protect, messageRoutes);
+router.use("/posts", protect, postRoutes);
 
 // -----------------------------------------------------------
 

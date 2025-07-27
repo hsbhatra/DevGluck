@@ -18,6 +18,6 @@ const tokenParser = () => {
 
 export const getNotifications = async () => {
   const config = tokenParser();
-  const res = await axiosInstance.get("/notifications", config);
+  const res = await axiosInstance.get("/api/notifications", config);
   return res.data;
 };
