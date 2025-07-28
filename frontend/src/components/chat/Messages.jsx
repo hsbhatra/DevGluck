@@ -1,27 +1,64 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from 'react-redux';
-import { listChat, getMessages, receiveNewMessages, setOnlineUsers } from "../../slices/ChatSlice";
+import { listChat, getMessages, receiveNewMessages, setOnlineUsers, createTempNewChat } from "../../slices/ChatSlice";
 import socket from './socket.jsx';
+import Search from '../search/Search.jsx';
 
 export default function MessagesUI() {
   const dispatch = useDispatch();
   const chatList = useSelector((state) => state.chat.chatList);
   const loading = useSelector((state) => state.chat.loading);
   const messages = useSelector((state) => state.chat.selectedChatMessages);
+  // const [messageUpdateTrigger, setMessageUpdateTrigger] = useState(false);
   const onlineUsers = useSelector((state) => state.chat.onlineUsers);
   const [selected, setSelected] = useState({});
   const user = JSON.parse(localStorage.getItem('currentUser')) || {};
   const [input, setInput] = useState("");
+  const eventBound = useRef(false);
 
   useEffect(() => {
-    dispatch(listChat());
-  }, [messages])
+    if (user?.user?._id) {
+      if (!socket.connected) {
+        socket.connect();
+        console.log("Socket connected after login")
+      }
+      console.log("Inital Message Load: ", user.user._id);
+      dispatch(listChat());
+      socket.emit("registerUser", user.user._id);
+    }
+  }, []); // initial load only
+
+  // useEffect(() => {
+  //   if (messageUpdateTrigger) {
+  //     dispatch(listChat());
+  //     setMessageUpdateTrigger(false);
+  //   }
+  // }, [messages])
 
   useEffect(() => {
-    console.log("msg1");
+    console.log("SSelected: ", selected);
+  }, [selected]);
+
+  useEffect(() => {
+    if (!user?.user?._id) return;
+
+    // socket.emit("setup", user?.user?._id);
+    // socket.on("registerUser", (userId) => {
+    //   if (!userSocketMap[userId]) {
+    //     userSocketMap[userId] = [];
+    //   }
+    //   if (!userSocketMap[userId].includes(socket.id)) {
+    //     userSocketMap[userId].push(socket.id);
+    //     console.log(`User ${userId} registered with socket ${socket.id}`);
+    //   }
+    //   io.emit("getOnlineUsers", Object.keys(userSocketMap));
+    // });
+
     socket.on('receiveMessage', (message) => {
       console.log(message, "msg2");
       dispatch(receiveNewMessages(message));
+      dispatch(listChat());
+      // messageUpdateTrigger(true);
     });
 
     socket.on("getOnlineUsers", (users) => {
@@ -30,14 +67,22 @@ export default function MessagesUI() {
 
     console.log("msg3");
     return () => {
-      socket.off("recieveMessage");
+      socket.off("receiveMessage");
       socket.off("getOnlineUsers");
     };
-  }, [dispatch]);
+  }, []);
+
 
   const handleChatSelect = async (contact) => {
+    console.log(contact);
     dispatch(getMessages(contact.recipientId));
     setSelected(contact)
+  }
+
+  const handleTempChatSelect = async (user) => {
+    dispatch(createTempNewChat(user));
+    dispatch(getMessages(user._id));
+    setSelected(user);
   }
 
   const handleChange = (e) => {
@@ -50,7 +95,7 @@ export default function MessagesUI() {
     // Prevent sending empty messages
 
     const currentUserId = user?.user?._id;
-    const selectedUserId = selected?.recipientId;
+    const selectedUserId = selected?.recipientId || selected?._id;
 
     const messageData = {
       senderId: currentUserId,
@@ -61,6 +106,7 @@ export default function MessagesUI() {
     console.log("Message sent:", messageData);
 
     socket.emit('sendMessage', messageData);
+    // setMessageUpdateTrigger(true);
 
     // dispatch(receiveNewMessages(messageData));
 
@@ -75,13 +121,13 @@ export default function MessagesUI() {
         <div className="p-2 sm:p-4 font-bold text-lg border-b border-gray-200 hidden sm:block">
           Messages
         </div>
+        <Search handleSelect={handleTempChatSelect}></Search>
         <div className="flex-1 overflow-auto w-full">
           {chatList.map((contact) => (
             <div
               key={contact.id}
-              className={`flex items-center gap-2 sm:gap-3 p-2 sm:p-3 cursor-pointer hover:bg-gray-100 transition-colors ${
-                selected.id === contact.id ? "bg-gray-100" : ""
-              }`}
+              className={`flex items-center gap-2 sm:gap-3 p-2 sm:p-3 cursor-pointer hover:bg-gray-100 transition-colors ${selected.id === contact.id ? "bg-gray-100" : ""
+                }`}
               onClick={() => { handleChatSelect(contact) }}
             >
               <img
@@ -92,7 +138,7 @@ export default function MessagesUI() {
 
               {/* Hide name & message on mobile */}
               <div className="hidden sm:block min-w-0 flex-1">
-                <div className="font-semibold text-sm truncate">{contact.name}</div>
+                <div className="font-semibold text-sm truncate">{contact.username}</div>
                 <div className="text-xs text-gray-500 truncate">
                   {/* {console.log("Inside: ", contact)} */}
                   {contact.lastMessage || "No messages yet"}
@@ -106,16 +152,16 @@ export default function MessagesUI() {
       {/* Chat Area */}
       <div className="flex-1 flex flex-col">
         {/* Chat Header */}
-        {selected.id ? (
+        {selected?._id || selected?.recipientId ? (
           <div className="p-3 sm:p-4 border-b border-gray-200 bg-white">
             <div className="flex items-center gap-3">
               <img
                 src={selected.avatar}
-                alt={selected.name}
+                alt={selected.username}
                 className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover"
               />
               <div className="min-w-0 flex-1">
-                <h3 className="font-semibold text-sm sm:text-base truncate">{selected.name}</h3>
+                <h3 className="font-semibold text-sm sm:text-base truncate">{selected.username}</h3>
                 <p className="text-xs text-gray-500 truncate">
                   {onlineUsers.includes(selected.recipientId) ? "Online" : "Offline"}
                 </p>
@@ -130,19 +176,18 @@ export default function MessagesUI() {
 
         {/* Messages Area */}
         <div className="flex-1 overflow-y-auto p-3 sm:p-4 bg-gray-50">
-          {selected.id ? (
+          {selected?._id || selected?.recipientId ? (
             <div className="space-y-3">
-              {messages.map((message, index) => (
+              {messages.length > 0 && messages.map((message, index) => (
                 <div
                   key={index}
                   className={`flex ${message.senderId === user?.user?._id ? 'justify-end' : 'justify-start'}`}
                 >
                   <div
-                    className={`max-w-xs sm:max-w-md lg:max-w-lg px-3 py-2 rounded-lg text-sm break-words ${
-                      message.senderId === user?.user?._id
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-white text-gray-800 border border-gray-200'
-                    }`}
+                    className={`max-w-xs sm:max-w-md lg:max-w-lg px-3 py-2 rounded-lg text-sm break-words ${message.senderId === user?.user?._id
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-white text-gray-800 border border-gray-200'
+                      }`}
                   >
                     {message.message}
                   </div>
@@ -159,7 +204,7 @@ export default function MessagesUI() {
         </div>
 
         {/* Message Input */}
-        {selected.id && (
+        {(selected?._id || selected?.recipientId) && (
           <div className="p-3 sm:p-4 border-t border-gray-200 bg-white">
             <form onSubmit={handleSendMessage} className="flex gap-2 sm:gap-3">
               <input
@@ -172,11 +217,10 @@ export default function MessagesUI() {
               <button
                 type="submit"
                 disabled={!input.trim()}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  input.trim()
-                    ? 'bg-blue-600 text-white hover:bg-blue-700'
-                    : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                }`}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${input.trim()
+                  ? 'bg-blue-600 text-white hover:bg-blue-700'
+                  : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                  }`}
               >
                 Send
               </button>

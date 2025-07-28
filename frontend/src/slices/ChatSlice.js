@@ -54,11 +54,10 @@ const handleChatList = (chatResponse) => {
     return chatResponse.map((chat) => {
         const check = chat?.participants[1]?._id === user?.user?._id;
         return {
-            id: chat?._id,
             messages: chat?.latestMessage?.message || "new message",
-            name: (check) ? chat?.participants[0]?.username : chat?.participants[1]?.username,
+            username: (check) ? chat?.participants[0]?.username : chat?.participants[1]?.username,
             recipientId: (check) ? chat?.participants[0]?._id : chat?.participants[1]?._id,
-            avatar: chat?.participants[1]?.avatar || "https://i.pravatar.cc/40?img=5",
+            avatar: chat?.participants[1]?.avatar,
         }
     });
 }
@@ -91,6 +90,11 @@ const chatSlice = createSlice({
             if (!currentChat.some(msg => msg._id === newMsg._id)) {
                 state.selectedChatMessages.push(newMsg);
             }
+        },
+        createTempNewChat: (state, action) => {
+            const update = { ...action.payload, messages: [] };
+            console.log("UPDATE: ", update);
+            state.chatList.push(update);
         }
 
     },
@@ -100,7 +104,7 @@ const chatSlice = createSlice({
                 state.loading = true;
             })
             .addCase(listChat.fulfilled, (state, action) => {
-                localStorage.setItem('chatResponse', JSON.stringify(action.payload));
+                // localStorage.setItem('chatResponse', JSON.stringify(action.payload));
                 state.chatResponse = action.payload;
                 // localStorage.setItem('chatList', JSON.stringyfy(action.payload))
                 state.chatList = handleChatList(action.payload);
@@ -114,8 +118,11 @@ const chatSlice = createSlice({
                 state.loading = true;
             })
             .addCase(getMessages.fulfilled, (state, action) => {
+                if (action.payload.length === 0) {
+
+                }
                 state.selectedChatMessages = action.payload;
-                localStorage.setItem('selectedChat', JSON.stringify(action.payload));
+                // localStorage.setItem('selectedChat', JSON.stringify(action.payload));
                 state.loading = false;
             })
             .addCase(getMessages.rejected, (state, action) => {
@@ -124,5 +131,5 @@ const chatSlice = createSlice({
             });
     }
 });
-export const { setOnlineUsers, setMessages, receiveNewMessages } = chatSlice.actions;
-export default chatSlice.reducer;
+export const { setOnlineUsers, setMessages, receiveNewMessages, createTempNewChat } = chatSlice.actions;
+export default chatSlice.reducer

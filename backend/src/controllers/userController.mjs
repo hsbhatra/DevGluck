@@ -222,3 +222,24 @@ export const changePassword = async (req, res) => {
   }
 };
 
+
+export const searchUser = async (req, res) => {
+  const keyword = req.query.search ? {
+    $or: [
+      { username: { $regex: req.query.search, $options: 'i' } },
+      { email: { $regex: req.query.search, $options: 'i' } }
+    ]
+  } : {};
+  try {
+    const searchUsers = await User.find(keyword)
+      .find({ _id: { $ne: req.user._id } })
+      .select('username avatar _id');
+    console.log(searchUsers);
+    res.status(200).send(searchUsers);
+  } catch (err) {
+    res.send(err);
+    console.log(err);
+  }
+
+};
+

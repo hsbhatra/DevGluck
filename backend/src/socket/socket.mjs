@@ -18,14 +18,15 @@ export const initSocket = (server) => {
     io.on("connection", (socket) => {
         console.log("🟢 Socket connected:", socket.id);
 
-        const userId = socket.handshake.query.userId;
-
-        if (userId) {
-            userSocketMap[userId] = socket.id;
-            console.log(`User ${userId} registered with socket ID: ${socket.id}`);
-        }
-
-        io.emit("getOnlineUsers", Object.keys(userSocketMap));
+        socket.on("registerUser", (userId) => {
+            socket.userId = userId;
+            console.log("Registered ID: ", userId);
+            if (!userSocketMap[userId]) userSocketMap[userId] = [];
+            if (!userSocketMap[userId].includes(socket.id)) {
+                userSocketMap[userId].push(socket.id);
+            }
+            io.emit("getOnlineUsers", Object.keys(userSocketMap));
+        });
 
         // ✅ Real-time messaging using service layer
         socket.on("sendMessage", async ({ senderId, receiverId, message }) => {
@@ -51,10 +52,17 @@ export const initSocket = (server) => {
             }
         });
 
+
+
         socket.on("disconnect", () => {
             console.log("🔴 Socket disconnected:", socket.id);
-            if (userId && userSocketMap[userId] === socket.id) {
-                delete userSocketMap[userId];
+            const userId = socket.userId;
+            console.log("Deregistered ID: ", userId);
+            if (userId && userSocketMap[userId]) {
+                userSocketMap[userId] = userSocketMap[userId]?.filter(id => id !== socket.id);
+                if (userSocketMap[userId]?.length === 0) {
+                    delete userSocketMap[userId];
+                }
             }
             io.emit("getOnlineUsers", Object.keys(userSocketMap));
         });

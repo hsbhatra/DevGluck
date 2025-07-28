@@ -7,6 +7,7 @@ import {
     getUserById,
     updateUserProfile,
     changePassword,
+    searchUser,
 } from '../controllers/userController.mjs';
 import { protect } from '../middleware/authMiddleware.mjs';
 
@@ -19,6 +20,7 @@ router.put("/update-profile", protect, updateUserProfile);
 router.put("/change-password", protect, changePassword);
 router.put('/deactivate', protect, deactivateUser);
 router.delete('/delete', protect, softDeleteUser);
+router.get('/search', protect, searchUser);
 
 
 export default router;
