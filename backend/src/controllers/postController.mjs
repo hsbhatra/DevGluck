@@ -1,23 +1,77 @@
 import { Post } from "../models/postModel.mjs";
 import { Like } from "../models/likeModel.mjs";
 import { Comment } from "../models/commentModel.mjs";
+import { uploadImage } from "../aws/aws.mjs";
 
 // Create a new post
 export const addNewPost = async (req, res) => {
   try {
-    const { content, media } = req.body;
+    console.log("Post creation request:", {
+      body: req.body,
+      file: req.file ? { 
+        originalname: req.file.originalname, 
+        mimetype: req.file.mimetype, 
+        size: req.file.size 
+      } : null,
+      user: req.user._id
+    });
+
+    const { content } = req.body;
     const author = req.user._id;
-    if (!content && !media) {
+    
+    if (!content && !req.file) {
       return res.status(400).json({ message: "Post content or media required." });
     }
-    const post = await Post.create({
+
+    let mediaUrl = null; // No default image when no file is uploaded
+    
+    // Handle file upload
+    if (req.file) {
+      try {
+        console.log("Processing file upload...");
+        console.log("Using AWS S3 upload...");
+        mediaUrl = await uploadImage(req.file);
+        console.log("S3 upload successful:", mediaUrl);
+      } catch (uploadError) {
+        console.error("Image upload failed:", uploadError);
+        console.log("Falling back to base64 storage...");
+        
+        // Fallback to base64 storage
+        const base64Data = req.file.buffer.toString('base64');
+        const mimeType = req.file.mimetype;
+        mediaUrl = `data:${mimeType};base64,${base64Data}`;
+        console.log("Base64 fallback successful");
+      }
+    }
+
+    console.log("Creating post with media URL:", mediaUrl);
+    const postData = {
       author,
       content,
-      media: media || "https://via.placeholder.com/500x300",
-    });
+    };
+    
+    // Only add media field if an image was uploaded
+    if (mediaUrl) {
+      postData.media = mediaUrl;
+    }
+    
+    const post = await Post.create(postData);
+    
+    // Populate author info before sending response
+    await post.populate("author", "firstName lastName avatar username");
+    // Add name field to author for frontend compatibility
+    if (post.author) {
+      post.author.name = `${post.author.firstName} ${post.author.lastName}`;
+    }
+    console.log("Post created successfully:", post._id);
     res.status(201).json(post);
   } catch (err) {
-    res.status(500).json({ message: "Failed to create post", error: err.message });
+    console.error("Post creation error:", err);
+    res.status(500).json({ 
+      message: "Failed to create post", 
+      error: err.message,
+      stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+    });
   }
 };
 
@@ -27,6 +81,13 @@ export const getAllPosts = async (req, res) => {
     const posts = await Post.find({ isDeleted: false })
       .sort({ createdAt: -1 })
       .populate("author", "firstName lastName avatar username");
+    
+    // Add name field to each post's author for frontend compatibility
+    posts.forEach(post => {
+      if (post.author) {
+        post.author.name = `${post.author.firstName} ${post.author.lastName}`;
+      }
+    });
     res.json(posts);
   } catch (err) {
     res.status(500).json({ message: "Failed to fetch posts", error: err.message });
@@ -40,6 +101,13 @@ export const getUserPosts = async (req, res) => {
     const posts = await Post.find({ author: userId, isDeleted: false })
       .sort({ createdAt: -1 })
       .populate("author", "firstName lastName avatar username");
+    
+    // Add name field to each post's author for frontend compatibility
+    posts.forEach(post => {
+      if (post.author) {
+        post.author.name = `${post.author.firstName} ${post.author.lastName}`;
+      }
+    });
     res.json(posts);
   } catch (err) {
     res.status(500).json({ message: "Failed to fetch user posts", error: err.message });
@@ -49,7 +117,7 @@ export const getUserPosts = async (req, res) => {
 // Delete a post (soft delete)
 export const deletePost = async (req, res) => {
   try {
-    const postId = req.params.id;
+    const postId = req.params.postId;
     const post = await Post.findById(postId);
     if (!post || post.isDeleted) {
       return res.status(404).json({ message: "Post not found." });
@@ -68,7 +136,7 @@ export const deletePost = async (req, res) => {
 // Like or unlike a post
 export const likePost = async (req, res) => {
   try {
-    const postId = req.params.id;
+    const postId = req.params.postId;
     const userId = req.user._id;
     const post = await Post.findById(postId);
     if (!post || post.isDeleted) {
@@ -96,7 +164,7 @@ export const likePost = async (req, res) => {
 // Add a comment to a post
 export const addComment = async (req, res) => {
   try {
-    const postId = req.params.id;
+    const postId = req.params.postId;
     const userId = req.user._id;
     const { text } = req.body;
     if (!text) {
@@ -118,10 +186,17 @@ export const addComment = async (req, res) => {
 // Get all comments for a post
 export const getCommentsOfPost = async (req, res) => {
   try {
-    const postId = req.params.id;
+    const postId = req.params.postId;
     const comments = await Comment.find({ postId, isDeleted: false })
       .sort({ createdAt: 1 })
       .populate("userId", "firstName lastName avatar username");
+    
+    // Add name field to each comment's user for frontend compatibility
+    comments.forEach(comment => {
+      if (comment.userId) {
+        comment.userId.name = `${comment.userId.firstName} ${comment.userId.lastName}`;
+      }
+    });
     res.json(comments);
   } catch (err) {
     res.status(500).json({ message: "Failed to fetch comments", error: err.message });

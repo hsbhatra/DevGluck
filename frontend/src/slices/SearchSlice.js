@@ -22,7 +22,7 @@ export const searchUser = createAsyncThunk(
     async (formData, thunkAPI) => {
         try {
             const config = tokenParser();
-            const response = await axiosInstance.get(`/users/search?search=${formData}`, config);
+            const response = await axiosInstance.get(`api/users/search?search=${formData}`, config);
             return response.data;
         } catch (err) {
             console.log(err);

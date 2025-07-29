@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import FormInput from "../Other/FormInput";
 import { EmailIcon, LockIcon } from "../Other/Icons";
 import { useDispatch, useSelector } from "react-redux";
@@ -33,7 +34,7 @@ const LoginPage = () => {
     if (!formData.password) errors.password = "Password is required";
     setError(errors);
 
-    if(Object.keys(errors).length > 0) return;
+    if (Object.keys(errors).length > 0) return;
 
     try {
       const res = await dispatch(signInUser(formData));
@@ -54,74 +55,145 @@ const LoginPage = () => {
 
   return (
     <>
-    {loading && <div className="w-12/12 h-12/12 fixed top-0 left-0 z-50 bg-white opacity-90 flex justify-center items-center">
-      <Loader/>
-    </div>}
-    <div className="w-full min-h-screen flex flex-col bg-gradient-to-br from-blue-50 to-indigo-50">
-      <div className="flex flex-col lg:flex-row flex-grow items-center justify-center p-4">
-        <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
-          <h2 className="text-3xl font-bold text-center mb-8 text-gray-800">
-            Welcome Back
-          </h2>
-
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            <FormInput
-              type="email"
-              name="email"
-              placeholder="Email"
-              error={error.email}
-              icon={<EmailIcon />}
-              value={formData.email}
-              onChange={handleChange}
-            />
-
-            <FormInput
-              type="password"
-              name="password"
-              placeholder="Password"
-              error={error.password}
-              showPasswordToggle={true}
-              icon={<LockIcon />}
-              value={formData.password}
-              onChange={handleChange}
-            />
-
-            <div className="flex items-center justify-between text-sm">
-              <label className="flex items-center space-x-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
-                />
-                <span className="text-gray-600">Remember me</span>
-              </label>
-              <Link
-                to="/forgot-password"
-                className="text-blue-600 hover:text-blue-800 transition-colors"
-              >
-                Forgot password?
-              </Link>
-            </div>
-
-            <button
-              type="submit"
-              className="w-full py-3 px-4 rounded-lg text-white font-medium transition-all bg-blue-600 hover:bg-blue-700 active:bg-blue-800"
+      <AnimatePresence>
+        {loading && (
+          <motion.div
+            className="w-12/12 h-12/12 fixed top-0 left-0 z-50 bg-white opacity-90 flex justify-center items-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <Loader />
+          </motion.div>
+        )}
+      </AnimatePresence>
+      <motion.div
+        className="w-full min-h-screen flex flex-col bg-gradient-to-br from-blue-50 to-indigo-50"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        <div className="flex flex-col lg:flex-row flex-grow items-center justify-center p-4">
+          <motion.div
+            className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8"
+            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+          >
+            <motion.h2
+              className="text-3xl font-bold text-center mb-8 text-gray-800"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
             >
-              Sign in
-            </button>
+              Welcome Back
+            </motion.h2>
 
-            <p className="text-center text-gray-600">
-              Don't have an account?{" "}
-              <Link
-                to="/signup"
-                className="text-blue-600 hover:text-blue-800 font-medium"
+            <motion.form
+              className="space-y-6"
+              onSubmit={handleSubmit}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+            >
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.4, delay: 0.4 }}
               >
-                Sign up
-              </Link>
-            </p>
-          </form>
+                <FormInput
+                  type="email"
+                  name="email"
+                  placeholder="Email"
+                  error={error.email}
+                  icon={<EmailIcon />}
+                  value={formData.email}
+                  onChange={handleChange}
+                />
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.4, delay: 0.5 }}
+              >
+                <FormInput
+                  type="password"
+                  name="password"
+                  placeholder="Password"
+                  error={error.password}
+                  showPasswordToggle={true}
+                  icon={<LockIcon />}
+                  value={formData.password}
+                  onChange={handleChange}
+                />
+              </motion.div>
+
+              <motion.div
+                className="flex items-center justify-between text-sm"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.6 }}
+              >
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                  />
+                  <span className="text-gray-600">Remember me</span>
+                </label>
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <Link
+                    to="/forgot-password"
+                    className="text-blue-600 hover:text-blue-800 transition-colors"
+                  >
+                    Forgot password?
+                  </Link>
+                </motion.div>
+              </motion.div>
+
+              <motion.button
+                type="submit"
+                className="w-full py-3 px-4 rounded-lg text-white font-medium transition-all bg-blue-600 hover:bg-blue-700 active:bg-blue-800"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.7 }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              // transition={{ duration: 0.2 }}
+              >
+                Sign in
+              </motion.button>
+
+              <motion.p
+                className="text-center text-gray-600"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.8 }}
+              >
+                Don't have an account?{" "}
+                <motion.span
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <Link
+                    to="/signup"
+                    className="text-blue-600 hover:text-blue-800 font-medium"
+                  >
+                    Sign up
+                  </Link>
+                </motion.span>
+              </motion.p>
+            </motion.form>
+          </motion.div>
         </div>
-      </div>
-    </div>
+      </motion.div>
     </>
   );
 };

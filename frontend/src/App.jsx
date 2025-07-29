@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import "./App.css";
 
 // IMPORT PAGES
@@ -28,17 +29,41 @@ import FollowUnfollow from "./pages/FollowUnfollow";
 import FollowUnfollowPage from "./pages/FollowUnfollow";
 import ChatPage from "./components/chat/ChatPage";
 import Layout from "./components/Layout";
-
+import SocketListener from "./components/chat/socketListener";
 
 function App() {
+  const dispatch = useDispatch();
+
+  // Load user data from localStorage on app startup
+  useEffect(() => {
+    const loadUserFromStorage = () => {
+      try {
+        const storedUser = localStorage.getItem("currentUser");
+        if (storedUser) {
+          const userData = JSON.parse(storedUser);
+          // Dispatch action to set user in Redux state
+          dispatch({
+            type: 'user/setCurrentUser',
+            payload: userData
+          });
+        }
+      } catch (error) {
+        console.error("Error loading user from storage:", error);
+        localStorage.removeItem("currentUser");
+      }
+    };
+
+    loadUserFromStorage();
+  }, [dispatch]);
 
   return (
     <div className="App">
+      <SocketListener />
       <Routes>
         {/* Authentication routes - no navbar */}
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/login" element={<LoginPage />} />
-        
+
         {/* Protected routes with navbar */}
         <Route path="/" element={
           <ProtectedRoute>
@@ -47,7 +72,7 @@ function App() {
             </Layout>
           </ProtectedRoute>
         } />
-        
+
         <Route path="/notifications" element={
           <ProtectedRoute>
             <Layout>
@@ -55,7 +80,7 @@ function App() {
             </Layout>
           </ProtectedRoute>
         } />
-        
+
         <Route path="/messages" element={
           <ProtectedRoute>
             <Layout>
@@ -63,7 +88,7 @@ function App() {
             </Layout>
           </ProtectedRoute>
         } />
-        
+
         <Route path="/profile" element={
           <ProtectedRoute>
             <Layout>
@@ -71,7 +96,7 @@ function App() {
             </Layout>
           </ProtectedRoute>
         } />
-        
+
         <Route path="/settings" element={
           <ProtectedRoute>
             <Layout>
@@ -79,7 +104,7 @@ function App() {
             </Layout>
           </ProtectedRoute>
         } />
-        
+
         <Route path="/settings/account" element={
           <ProtectedRoute>
             <Layout>
@@ -87,7 +112,7 @@ function App() {
             </Layout>
           </ProtectedRoute>
         } />
-        
+
         <Route path="/settings/notifications" element={
           <ProtectedRoute>
             <Layout>
@@ -95,7 +120,7 @@ function App() {
             </Layout>
           </ProtectedRoute>
         } />
-        
+
         <Route path="/settings/appearance" element={
           <ProtectedRoute>
             <Layout>
@@ -103,7 +128,7 @@ function App() {
             </Layout>
           </ProtectedRoute>
         } />
-        
+
         <Route path="/settings/privacy" element={
           <ProtectedRoute>
             <Layout>
@@ -111,7 +136,7 @@ function App() {
             </Layout>
           </ProtectedRoute>
         } />
-        
+
         <Route path="/settings/help" element={
           <ProtectedRoute>
             <Layout>
@@ -119,7 +144,7 @@ function App() {
             </Layout>
           </ProtectedRoute>
         } />
-        
+
         <Route path="/settings/about" element={
           <ProtectedRoute>
             <Layout>
@@ -127,7 +152,7 @@ function App() {
             </Layout>
           </ProtectedRoute>
         } />
-        
+
         <Route path="/settings/general" element={
           <ProtectedRoute>
             <Layout>
@@ -135,7 +160,7 @@ function App() {
             </Layout>
           </ProtectedRoute>
         } />
-        
+
         <Route path="/blogs" element={
           <ProtectedRoute>
             <Layout>
@@ -143,7 +168,7 @@ function App() {
             </Layout>
           </ProtectedRoute>
         } />
-        
+
         <Route path="/user-posts" element={
           <ProtectedRoute>
             <Layout>

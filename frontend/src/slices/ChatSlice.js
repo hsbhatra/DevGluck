@@ -23,7 +23,7 @@ export const listChat = createAsyncThunk(
     async (userId, thunkAPI) => {
         try {
             const config = tokenParser();
-            const conversations = await axiosInstance.get('/messages', config);
+            const conversations = await axiosInstance.get('api/messages');
             console.log(conversations);
             return conversations.data.conversations;
         } catch (error) {
@@ -38,7 +38,7 @@ export const getMessages = createAsyncThunk(
     async (recieverId, thunkAPI) => {
         try {
             const config = tokenParser();
-            const response = await axiosInstance.get(`/messages/all/${recieverId}`, config);
+            const response = await axiosInstance.get(`api/messages/all/${recieverId}`, config);
             return response.data.messages;
         } catch (error) {
             console.error("ChatSlice: getMessages error:", error);
@@ -52,7 +52,7 @@ const handleChatList = (chatResponse) => {
     const user = JSON.parse(localStorage.getItem("currentUser"))
 
     return chatResponse.map((chat) => {
-        const check = chat?.participants[1]?._id === user?.user?._id;
+        const check = chat?.participants[1]?._id === user?._id;
         return {
             messages: chat?.latestMessage?.message || "new message",
             username: (check) ? chat?.participants[0]?.username : chat?.participants[1]?.username,
@@ -67,7 +67,9 @@ const initialState = {
     loading: false,
     chatList: [],
     selectedChatMessages: [],
+    selectedChatId: null,
     onlineUsers: [],
+    unreadMessages: {},
     socket: null,
 }
 
@@ -82,17 +84,61 @@ const chatSlice = createSlice({
         setMessages: (state, action) => {
             state.messages = action.payload;
         },
+        clearMessages: (state) => {
+            state.selectedChatMessages = [];
+        },
         receiveNewMessages: (state, action) => {
             const newMsg = action.payload;
 
-            const currentChat = state.selectedChatMessages;
+            // 1. Check if current chat is open
+            const isCurrentChat =
+                state.selectedChatId &&
+                (newMsg.senderId === state.selectedChatId || newMsg.receiverId === state.selectedChatId);
 
-            if (!currentChat.some(msg => msg._id === newMsg._id)) {
-                state.selectedChatMessages.push(newMsg);
+            if (isCurrentChat) {
+                // Add message to currently selected chat
+                const alreadyExists = state.selectedChatMessages.some(msg => msg._id === newMsg._id);
+                if (!alreadyExists) {
+                    state.selectedChatMessages.push(newMsg);
+                }
+            } else {
+                // Increment unread count for the sender
+                const senderId = newMsg.senderId;
+                if (!state.unreadMessages[senderId]) state.unreadMessages[senderId] = 0;
+                state.unreadMessages[senderId]++;
+            }
+
+            // 2. Update chat list order (move chat to top)
+            const chatIndex = state.chatList.findIndex(
+                chat =>
+                    chat.recipientId === newMsg.senderId || chat.recipientId === newMsg.receiverId
+            );
+
+            if (chatIndex !== -1) {
+                const chat = state.chatList.splice(chatIndex, 1)[0];
+                // Update last message text
+                chat.messages = newMsg.message;
+                state.chatList.unshift(chat); // Move to top
             }
         },
+        setSelectedChatId: (state, action) => {
+            state.selectedChatId = action.payload;
+            // Reset unread count for this chat
+            if (state.unreadMessages[action.payload]) {
+                delete state.unreadMessages[action.payload];
+            }
+        },
+        setSelectedChat: (state, action) => {
+            state.selectedChatId = action.payload; // recipientId or userId of the open chat
+        },
         createTempNewChat: (state, action) => {
-            const update = { ...action.payload, messages: [] };
+            const tempUser = action.payload;
+            const update = {
+                ...tempUser,
+                messages: [],
+                recipientId: tempUser._id,
+                isTemp: true
+            };
             console.log("UPDATE: ", update);
             state.chatList.push(update);
         }
@@ -104,10 +150,11 @@ const chatSlice = createSlice({
                 state.loading = true;
             })
             .addCase(listChat.fulfilled, (state, action) => {
-                // localStorage.setItem('chatResponse', JSON.stringify(action.payload));
+                const updatedList = handleChatList(action.payload);
+                state.chatList = state.chatList
+                    .filter(chat => chat.isTemp && !updatedList.some(c => c.recipientId === chat.recipientId))
+                    .concat(updatedList);
                 state.chatResponse = action.payload;
-                // localStorage.setItem('chatList', JSON.stringyfy(action.payload))
-                state.chatList = handleChatList(action.payload);
                 state.loading = false;
             })
             .addCase(listChat.rejected, (state, action) => {
@@ -131,5 +178,12 @@ const chatSlice = createSlice({
             });
     }
 });
-export const { setOnlineUsers, setMessages, receiveNewMessages, createTempNewChat } = chatSlice.actions;
+export const {
+    setOnlineUsers,
+    setMessages,
+    receiveNewMessages,
+    createTempNewChat,
+    setSelectedChat,
+    setSelectedChatId,
+    clearMessages } = chatSlice.actions;
 export default chatSlice.reducer

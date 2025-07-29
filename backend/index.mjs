@@ -18,7 +18,6 @@ app.use(cors(
 ));
 
 app.use(express.json());
-app.use(multer().any());
 
 mongoose.connect(mongodb, {
   useNewUrlParser: true,
@@ -26,7 +25,7 @@ mongoose.connect(mongodb, {
   .then(() => { console.log("MongoDB connected successfully") })
   .catch((err) => { console.log("MongoDB connection failed", err) });
 
-app.use('/', router);
+app.use('/api', router);
 
 // Create http server with express app
 const server = http.createServer(app);

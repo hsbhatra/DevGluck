@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { motion, AnimatePresence } from "framer-motion";
 import FormInput from "../Other/FormInput";
 import { EmailIcon, LockIcon, UserIcon } from "../Other/Icons";
 import { signUpUser } from "../../slices/UserSlice";
@@ -79,20 +80,56 @@ function SignupPage() {
 
   return (
     <>
-    {loading && <div className="w-12/12 h-12/12 fixed top-0 left-0 z-50 bg-white opacity-90 flex justify-center items-center">
-      <Loader/>
-    </div>}
-    <div className="flex flex-col min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
+    <AnimatePresence>
+      {loading && (
+        <motion.div 
+          className="w-12/12 h-12/12 fixed top-0 left-0 z-50 bg-white opacity-90 flex justify-center items-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <Loader/>
+        </motion.div>
+      )}
+    </AnimatePresence>
+    <motion.div 
+      className="flex flex-col min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
       <div className="flex-grow flex justify-center items-center p-4">
-        <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
+        <motion.div 
+          className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8"
+          initial={{ opacity: 0, y: 50, scale: 0.9 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+        >
           {/* Signup form header */}
-          <h2 className="text-3xl font-bold text-center mb-8 text-gray-800">
+          <motion.h2 
+            className="text-3xl font-bold text-center mb-8 text-gray-800"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
             Create Account
-          </h2>
+          </motion.h2>
           {/* Signup form */}
-          <form className="space-y-2" onSubmit={handleSubmit}>
+          <motion.form 
+            className="space-y-2" 
+            onSubmit={handleSubmit}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+          >
             {/* First and Last Name fields */}
-            <div className="grid grid-cols-2 gap-4">
+            <motion.div 
+              className="grid grid-cols-2 gap-4"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.4, delay: 0.4 }}
+            >
               <FormInput
                 type="text"
                 name="firstName"
@@ -111,76 +148,117 @@ function SignupPage() {
                 onChange={handleChange}
                 icon={<UserIcon />}
               />
-            </div>
+            </motion.div>
 
             {/* Username field */}
-            <FormInput
-              type="text"
-              name="username"
-              placeholder="Create Username"
-              error={error.username}
-              value={formData.username}
-              onChange={handleChange}
-              icon={<EmailIcon />}
-            />
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.4, delay: 0.5 }}
+            >
+              <FormInput
+                type="text"
+                name="username"
+                placeholder="Create Username"
+                error={error.username}
+                value={formData.username}
+                onChange={handleChange}
+                icon={<EmailIcon />}
+              />
+            </motion.div>
 
             {/* Email field */}
-            <FormInput
-              type="email"
-              name="email"
-              placeholder="Enter Email"
-              error={error.email}
-              value={formData.email}
-              onChange={handleChange}
-              icon={<EmailIcon />}
-            />
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.4, delay: 0.6 }}
+            >
+              <FormInput
+                type="email"
+                name="email"
+                placeholder="Enter Email"
+                error={error.email}
+                value={formData.email}
+                onChange={handleChange}
+                icon={<EmailIcon />}
+              />
+            </motion.div>
 
             {/* Password field */}
-            <FormInput
-              type="password"
-              name="password"
-              placeholder="Create Password"
-              error={error.password}
-              value={formData.password}
-              onChange={handleChange}
-              showPasswordToggle={true}
-              icon={<LockIcon />}
-            />
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.4, delay: 0.7 }}
+            >
+              <FormInput
+                type="password"
+                name="password"
+                placeholder="Create Password"
+                error={error.password}
+                value={formData.password}
+                onChange={handleChange}
+                showPasswordToggle={true}
+                icon={<LockIcon />}
+              />
+            </motion.div>
 
             {/* Confirm Password field */}
-            <FormInput
-              type="password"
-              name="confirmPassword"
-              placeholder="Confirm Password"
-              error={error.confirmPassword}
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              showPasswordToggle={true}
-              icon={<LockIcon />}
-            />
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.4, delay: 0.8 }}
+            >
+              <FormInput
+                type="password"
+                name="confirmPassword"
+                placeholder="Confirm Password"
+                error={error.confirmPassword}
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                showPasswordToggle={true}
+                icon={<LockIcon />}
+              />
+            </motion.div>
 
             {/* Submit button */}
-            <button
+            <motion.button
               type="submit"
               className="w-full py-3 px-4 rounded-lg font-medium bg-blue-600 text-white hover:bg-blue-700 transition-all"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.9 }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              transition={{ duration: 0.2 }}
             >
              Create Account
-            </button>
+            </motion.button>
 
             {/* Link to login page */}
-            <p className="text-center text-gray-600">
+            <motion.p 
+              className="text-center text-gray-600"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 1.0 }}
+            >
               Already have an account?{" "}
-              <Link
-                to="/login"
-                className="text-blue-600 hover:text-blue-800 font-medium"
+              <motion.span
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ duration: 0.2 }}
               >
-                Sign in
-              </Link>
-            </p>
-          </form>
-        </div>
+                <Link
+                  to="/login"
+                  className="text-blue-600 hover:text-blue-800 font-medium"
+                >
+                  Sign in
+                </Link>
+              </motion.span>
+            </motion.p>
+          </motion.form>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
     </>
   );
 }

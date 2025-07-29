@@ -1,209 +1,213 @@
+// Fixed and cleaned-up version of the MessagesUI component
 import React, { useEffect, useRef, useState } from "react";
-import { useDispatch, useSelector } from 'react-redux';
-import { listChat, getMessages, receiveNewMessages, setOnlineUsers, createTempNewChat } from "../../slices/ChatSlice";
-import socket from './socket.jsx';
-import Search from '../search/Search.jsx';
+import { useDispatch, useSelector } from "react-redux";
+import {
+  listChat,
+  getMessages,
+  receiveNewMessages,
+  setOnlineUsers,
+  createTempNewChat,
+  setSelectedChat,
+  setSelectedChatId,
+  clearMessages
+} from "../../slices/ChatSlice";
+import { motion, AnimatePresence } from "framer-motion";
+import socket from "./socket.jsx";
+import Search from "../search/Search.jsx";
+
 
 export default function MessagesUI() {
   const dispatch = useDispatch();
   const chatList = useSelector((state) => state.chat.chatList);
   const loading = useSelector((state) => state.chat.loading);
   const messages = useSelector((state) => state.chat.selectedChatMessages);
-  // const [messageUpdateTrigger, setMessageUpdateTrigger] = useState(false);
   const onlineUsers = useSelector((state) => state.chat.onlineUsers);
+  const unreadMessages = useSelector((state) => state.chat.unreadMessages);
   const [selected, setSelected] = useState({});
-  const user = JSON.parse(localStorage.getItem('currentUser')) || {};
+  const user = JSON.parse(localStorage.getItem("currentUser")) || {};
   const [input, setInput] = useState("");
-  const eventBound = useRef(false);
+  // const eventBound = useRef(false);
 
   useEffect(() => {
-    if (user?.user?._id) {
+    console.log("Messages UE 1", user?._id);
+    if (user?._id) {
       if (!socket.connected) {
         socket.connect();
-        console.log("Socket connected after login")
+        console.log("Socket connected after login");
       }
-      console.log("Inital Message Load: ", user.user._id);
       dispatch(listChat());
-      socket.emit("registerUser", user.user._id);
+      socket.emit("registerUser", user._id);
     }
-  }, []); // initial load only
-
-  // useEffect(() => {
-  //   if (messageUpdateTrigger) {
-  //     dispatch(listChat());
-  //     setMessageUpdateTrigger(false);
-  //   }
-  // }, [messages])
+  }, []);
 
   useEffect(() => {
-    console.log("SSelected: ", selected);
-  }, [selected]);
+    if (!user?._id) return;
 
-  useEffect(() => {
-    if (!user?.user?._id) return;
-
-    // socket.emit("setup", user?.user?._id);
-    // socket.on("registerUser", (userId) => {
-    //   if (!userSocketMap[userId]) {
-    //     userSocketMap[userId] = [];
-    //   }
-    //   if (!userSocketMap[userId].includes(socket.id)) {
-    //     userSocketMap[userId].push(socket.id);
-    //     console.log(`User ${userId} registered with socket ${socket.id}`);
-    //   }
-    //   io.emit("getOnlineUsers", Object.keys(userSocketMap));
-    // });
-
-    socket.on('receiveMessage', (message) => {
+    socket.on("receiveMessage", (message) => {
       console.log(message, "msg2");
       dispatch(receiveNewMessages(message));
       dispatch(listChat());
-      // messageUpdateTrigger(true);
     });
 
     socket.on("getOnlineUsers", (users) => {
       dispatch(setOnlineUsers(users));
     });
 
-    console.log("msg3");
     return () => {
       socket.off("receiveMessage");
       socket.off("getOnlineUsers");
     };
   }, []);
 
+  useEffect(() => {
+    if (selected?.isTemp) {
+      const realChat = chatList.find(
+        (chat) => chat.recipientId === selected.recipientId && !chat.isTemp
+      );
+      if (realChat) {
+        setSelected(realChat);
+      }
+    }
+  }, [chatList]);
 
   const handleChatSelect = async (contact) => {
-    console.log(contact);
     dispatch(getMessages(contact.recipientId));
-    setSelected(contact)
-  }
+    dispatch(setSelectedChatId(contact.recipientId));
+    setSelected(contact);
+  };
 
   const handleTempChatSelect = async (user) => {
     dispatch(createTempNewChat(user));
     dispatch(getMessages(user._id));
+    dispatch(setSelectedChat(user._id));
     setSelected(user);
-  }
+  };
 
-  const handleChange = (e) => {
-    e.preventDefault();
-  }
+  useEffect(() => {
+    // Cleanup on unmount
+    return () => {
+      console.log("Leaving Messages page, clearing selection...");
+      setSelected({});
+      dispatch(setSelectedChatId(null));
+      dispatch(setSelectedChat([]));
+      dispatch(clearMessages()); // Clears the Redux messages
+    };
+  }, []);
+
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!input.trim()) return;
-    // Prevent sending empty messages
-
-    const currentUserId = user?.user?._id;
-    const selectedUserId = selected?.recipientId || selected?._id;
 
     const messageData = {
-      senderId: currentUserId,
-      receiverId: selectedUserId,
+      senderId: user?._id,
+      receiverId: selected?.recipientId || selected?._id,
       message: input,
-    }
+    };
 
-    console.log("Message sent:", messageData);
-
-    socket.emit('sendMessage', messageData);
-    // setMessageUpdateTrigger(true);
-
-    // dispatch(receiveNewMessages(messageData));
-
+    socket.emit("sendMessage", messageData, () => {
+      dispatch(listChat());
+    });
     setInput("");
-
-  }
+  };
 
   return (
-    <div className="flex h-screen border border-gray-200 rounded-lg overflow-hidden shadow-sm font-sans">
+    <motion.div
+      className="flex h-screen border border-gray-200 rounded-lg overflow-hidden shadow-sm font-sans"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.1, ease: "easeIn" }}
+    >
       {/* Sidebar */}
-      <div className="w-20 sm:w-1/3 border-r border-gray-200 flex flex-col items-center sm:items-stretch">
+      <div className="w-20 sm:w-1/3 border-r border-gray-200 flex flex-col">
         <div className="p-2 sm:p-4 font-bold text-lg border-b border-gray-200 hidden sm:block">
           Messages
         </div>
-        <Search handleSelect={handleTempChatSelect}></Search>
+        <Search handleSelect={handleTempChatSelect} />
         <div className="flex-1 overflow-auto w-full">
-          {chatList.map((contact) => (
-            <div
-              key={contact.id}
-              className={`flex items-center gap-2 sm:gap-3 p-2 sm:p-3 cursor-pointer hover:bg-gray-100 transition-colors ${selected.id === contact.id ? "bg-gray-100" : ""
-                }`}
-              onClick={() => { handleChatSelect(contact) }}
-            >
-              <img
-                src={contact.avatar}
-                alt={contact.name}
-                className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover mx-auto sm:mx-0 flex-shrink-0"
-              />
+          {chatList.map((contact) => {
+            const isUnread = unreadMessages[contact.recipientId] > 0;
 
-              {/* Hide name & message on mobile */}
-              <div className="hidden sm:block min-w-0 flex-1">
-                <div className="font-semibold text-sm truncate">{contact.username}</div>
-                <div className="text-xs text-gray-500 truncate">
-                  {/* {console.log("Inside: ", contact)} */}
-                  {contact.lastMessage || "No messages yet"}
+            return (
+              <div
+                key={contact.recipientId}
+                className={`flex items-center gap-2 p-2 cursor-pointer transition-colors
+            ${selected.recipientId === contact.recipientId ? "bg-gray-100" : ""}
+            ${isUnread ? "font-bold text-black" : "text-gray-500"}
+          `}
+                onClick={() => handleChatSelect(contact)}
+              >
+                <img
+                  src={contact.avatar}
+                  alt={contact.username}
+                  className="w-10 h-10 rounded-full object-cover"
+                />
+                <div className="hidden sm:block min-w-0 flex-1">
+                  <div className="font-semibold text-sm truncate">{contact.username}</div>
+                  <div className="text-xs text-gray-500 truncate">
+                    {contact.messages || "No messages yet"}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
       {/* Chat Area */}
       <div className="flex-1 flex flex-col">
-        {/* Chat Header */}
-        {selected?._id || selected?.recipientId ? (
+
+        {(selected?._id || selected?.recipientId) ? (
           <div className="p-3 sm:p-4 border-b border-gray-200 bg-white">
-            <div className="flex items-center gap-3">
-              <img
-                src={selected.avatar}
-                alt={selected.username}
-                className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover"
-              />
-              <div className="min-w-0 flex-1">
-                <h3 className="font-semibold text-sm sm:text-base truncate">{selected.username}</h3>
-                <p className="text-xs text-gray-500 truncate">
-                  {onlineUsers.includes(selected.recipientId) ? "Online" : "Offline"}
-                </p>
+            <AnimatePresence mode="wait">
+              <div className="flex items-center gap-3">
+                <img
+                  src={selected.avatar}
+                  alt={selected.username}
+                  className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover"
+                />
+                <div className="min-w-0 flex-1">
+                  <h3 className="font-semibold text-sm sm:text-base truncate">{selected.username}</h3>
+                  <p className="text-xs text-gray-500 truncate">
+                    {onlineUsers.includes(selected.recipientId || selected._id) ? "Online" : "Offline"}
+                  </p>
+                </div>
               </div>
-            </div>
+
+            </AnimatePresence>
           </div>
         ) : (
-          <div className="p-3 sm:p-4 border-b border-gray-200 bg-white">
-            <h3 className="font-semibold text-sm sm:text-base text-gray-500">Select a chat to start messaging</h3>
-          </div>
+          <div className="p-4 text-center text-gray-500">Select a chat to start messaging</div>
         )}
 
-        {/* Messages Area */}
         <div className="flex-1 overflow-y-auto p-3 sm:p-4 bg-gray-50">
-          {selected?._id || selected?.recipientId ? (
-            <div className="space-y-3">
-              {messages.length > 0 && messages.map((message, index) => (
-                <div
+          <AnimatePresence>
+            {messages.length > 0 ? (
+              messages.map((message, index) => (
+                <motion.div
                   key={index}
-                  className={`flex ${message.senderId === user?.user?._id ? 'justify-end' : 'justify-start'}`}
+                  className={`flex ${message.senderId === user?._id ? "justify-end" : "justify-start"}`}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 20 }}
+                  transition={{ duration: 0.05, ease: 'easeInOut' }}
                 >
                   <div
-                    className={`max-w-xs sm:max-w-md lg:max-w-lg px-3 py-2 rounded-lg text-sm break-words ${message.senderId === user?.user?._id
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-white text-gray-800 border border-gray-200'
+                    className={`max-w-xs sm:max-w-md lg:max-w-lg px-3 py-2 rounded-lg text-sm break-words ${message.senderId === user?._id
+                      ? "bg-blue-600 text-white"
+                      : "bg-white text-gray-800 border border-gray-200"
                       }`}
                   >
                     {message.message}
                   </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="flex items-center justify-center h-full">
-              <div className="text-center text-gray-500">
-                <p className="text-sm sm:text-base">Choose a conversation to start messaging</p>
-              </div>
-            </div>
-          )}
+                </motion.div>
+              ))
+            ) : (
+              <div className="text-gray-500 text-center text-sm">No messages yet</div>
+            )}
+          </AnimatePresence>
         </div>
 
-        {/* Message Input */}
         {(selected?._id || selected?.recipientId) && (
           <div className="p-3 sm:p-4 border-t border-gray-200 bg-white">
             <form onSubmit={handleSendMessage} className="flex gap-2 sm:gap-3">
@@ -218,8 +222,8 @@ export default function MessagesUI() {
                 type="submit"
                 disabled={!input.trim()}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${input.trim()
-                  ? 'bg-blue-600 text-white hover:bg-blue-700'
-                  : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                  ? "bg-blue-600 text-white hover:bg-blue-700"
+                  : "bg-gray-200 text-gray-400 cursor-not-allowed"
                   }`}
               >
                 Send
@@ -228,6 +232,6 @@ export default function MessagesUI() {
           </div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }

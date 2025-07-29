@@ -3,7 +3,7 @@ import Messages from './Messages';
 
 export default function () {
     return (
-        <div>
+        <div className='h-11/12 overflow-scroll'>
             <Messages />
         </div>
     )

@@ -1,13 +1,13 @@
-import aws from 'aws-sdk';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { accessKeyId, secretAccessKey, region, bucketName } from '../../config.mjs';
 
-aws.config.update({
-    accessKeyId:accessKeyId, 
-    secretAccessKey:secretAccessKey,
-    region:region
+const s3Client = new S3Client({
+    region: region,
+    credentials: {
+        accessKeyId: accessKeyId,
+        secretAccessKey: secretAccessKey,
+    },
 });
-
-const s3 = new aws.S3();
 
 const uploadImage = async (file) => {
     // file: { buffer, mimetype, originalname }
@@ -18,12 +18,18 @@ const uploadImage = async (file) => {
         ContentType: file.mimetype,
         ACL: 'public-read', // or 'private' if you want restricted access
     };
-    return new Promise((resolve, reject) => {
-        s3.upload(params, (err, data) => {
-            if (err) return reject(err);
-            resolve(data.Location); // S3 file URL
-        });
-    });
+    
+    try {
+        const command = new PutObjectCommand(params);
+        const result = await s3Client.send(command);
+        
+        // Construct the S3 URL
+        const s3Url = `https://${bucketName}.s3.${region}.amazonaws.com/${params.Key}`;
+        return s3Url;
+    } catch (error) {
+        console.error('S3 upload error:', error);
+        throw error;
+    }
 };
 
 export { uploadImage };
