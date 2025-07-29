@@ -168,9 +168,9 @@ export default function MessagesUI() {
                 />
                 <div className="min-w-0 flex-1">
                   <h3 className="font-semibold text-sm sm:text-base truncate">{selected.username}</h3>
-                  <p className="text-xs text-gray-500 truncate">
-                    {onlineUsers.includes(selected.recipientId || selected._id) ? "Online" : "Offline"}
-                  </p>
+
+                  {onlineUsers.includes(selected.recipientId || selected._id) ? <p className="text-xs text-green-500 truncate">Online</p> : <p className="text-xs text-gray-500 truncate">Offline</p>}
+
                 </div>
               </div>
 
